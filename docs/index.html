@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code チーム開発環境 - ドキュメント</title>
+<style>
+:root {
+  --bg: #0f1117;
+  --bg-card: #1a1d27;
+  --bg-code: #12141c;
+  --border: #2a2d3a;
+  --text: #e2e4ea;
+  --text-muted: #8b8fa3;
+  --accent: #d4a574;
+  --accent-dim: #b8885a;
+  --accent-bg: rgba(212,165,116,0.08);
+  --link: #7eb8da;
+  --green: #7ec699;
+  --red: #e06c75;
+  --yellow: #e5c07b;
+  --purple: #c678dd;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans JP', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100vh;
+  background: var(--bg-card);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  z-index: 100;
+  transition: transform 0.3s ease;
+}
+
+.sidebar-header {
+  padding: 24px 20px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-header h1 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.02em;
+}
+
+.sidebar-header p {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.nav-section {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-section:last-child { border-bottom: none; }
+
+.nav-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 4px 20px 8px;
+}
+
+.nav-link {
+  display: block;
+  padding: 6px 20px 6px 28px;
+  font-size: 13px;
+  color: var(--text);
+  text-decoration: none;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+
+.nav-link:hover {
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
+.nav-link.active {
+  color: var(--accent);
+  background: var(--accent-bg);
+  border-right: 2px solid var(--accent);
+}
+
+/* Main */
+.main {
+  margin-left: 280px;
+  max-width: 900px;
+  padding: 40px 48px 80px;
+}
+
+/* Mobile hamburger */
+.menu-toggle {
+  display: none;
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 200;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* Sections */
+.doc-section {
+  display: none;
+  animation: fadeIn 0.25s ease;
+}
+
+.doc-section.active { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+h2 .badge {
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--accent-bg);
+  color: var(--accent-dim);
+  padding: 3px 10px;
+  border-radius: 12px;
+  margin-left: 12px;
+  vertical-align: middle;
+}
+
+.section-desc {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-bottom: 28px;
+}
+
+h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 32px 0 12px;
+}
+
+h4 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin: 24px 0 8px;
+}
+
+p { margin-bottom: 12px; font-size: 14.5px; }
+
+ul, ol {
+  margin: 8px 0 16px 24px;
+  font-size: 14.5px;
+}
+
+li { margin-bottom: 4px; }
+
+/* Code */
+pre {
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px;
+  overflow-x: auto;
+  margin: 12px 0 20px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+code {
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 13px;
+}
+
+p code, li code {
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12.5px;
+  color: var(--accent);
+}
+
+/* Table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0 20px;
+  font-size: 13.5px;
+}
+
+th {
+  background: var(--bg-code);
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  color: var(--accent);
+}
+
+td {
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+}
+
+tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* Cards for file tree and config blocks */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin: 16px 0;
+}
+
+.card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-title .icon {
+  font-size: 16px;
+}
+
+/* Badges */
+.tag {
+  display: inline-block;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 500;
+  margin-right: 4px;
+}
+
+.tag-green { background: rgba(126,198,153,0.15); color: var(--green); }
+.tag-yellow { background: rgba(229,192,123,0.15); color: var(--yellow); }
+.tag-red { background: rgba(224,108,117,0.15); color: var(--red); }
+.tag-purple { background: rgba(198,120,221,0.15); color: var(--purple); }
+.tag-blue { background: rgba(126,184,218,0.15); color: var(--link); }
+
+/* YAML frontmatter display */
+.frontmatter {
+  background: rgba(212,165,116,0.06);
+  border-left: 3px solid var(--accent-dim);
+  padding: 12px 16px;
+  margin: 8px 0 16px;
+  border-radius: 0 6px 6px 0;
+  font-size: 13px;
+}
+
+.frontmatter code {
+  color: var(--green);
+}
+
+/* Overview grid */
+.overview-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.overview-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.overview-card:hover {
+  border-color: var(--accent-dim);
+  transform: translateY(-2px);
+}
+
+.overview-card h4 {
+  margin: 0 0 6px;
+  color: var(--accent);
+  font-size: 14px;
+}
+
+.overview-card p {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Severity badges */
+.severity-critical { color: var(--red); }
+.severity-warning { color: var(--yellow); }
+.severity-info { color: var(--link); }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .menu-toggle { display: block; }
+  .main { margin-left: 0; padding: 60px 20px 80px; }
+  .overview-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h1>Claude Code Team</h1>
+    <p>monogatari-it-dept/claude-code-setup</p>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">概要</div>
+    <a class="nav-link active" data-section="overview">ドキュメント一覧</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">ガイド</div>
+    <a class="nav-link" data-section="team-guide">チーム開発ガイドライン</a>
+    <a class="nav-link" data-section="setup-guide">セットアップガイド</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">設定ファイル</div>
+    <a class="nav-link" data-section="claude-md">CLAUDE.md</a>
+    <a class="nav-link" data-section="settings-json">settings.json</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">パス別ルール</div>
+    <a class="nav-link" data-section="rule-frontend">フロントエンド</a>
+    <a class="nav-link" data-section="rule-backend">バックエンド</a>
+    <a class="nav-link" data-section="rule-testing">テスト</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">スキル</div>
+    <a class="nav-link" data-section="skill-fix-issue">fix-issue</a>
+    <a class="nav-link" data-section="skill-review-pr">review-pr</a>
+    <a class="nav-link" data-section="skill-commit">commit</a>
+    <a class="nav-link" data-section="skill-create-api">create-api</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">サブエージェント</div>
+    <a class="nav-link" data-section="agent-security">security-reviewer</a>
+    <a class="nav-link" data-section="agent-test">test-writer</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">GitHub テンプレート</div>
+    <a class="nav-link" data-section="pr-template">PR テンプレート</a>
+    <a class="nav-link" data-section="issue-bug">バグ報告</a>
+    <a class="nav-link" data-section="issue-feature">機能リクエスト</a>
+  </div>
+</nav>
+
+<main class="main">
+
+  <!-- ===== Overview ===== -->
+  <section class="doc-section active" id="overview">
+    <h2>ドキュメント一覧</h2>
+    <p class="section-desc">Anthropic公式ベストプラクティスに基づくClaude Codeチーム開発環境の全設定ファイルとガイドです。</p>
+
+    <h3>ガイドドキュメント</h3>
+    <div class="overview-grid">
+      <div class="overview-card" onclick="navigate('team-guide')">
+        <h4>📘 チーム開発ガイドライン</h4>
+        <p>基本原則、コンテキスト管理、ファイル構成、開発フロー、アンチパターンをカバーする包括ガイド</p>
+      </div>
+      <div class="overview-card" onclick="navigate('setup-guide')">
+        <h4>🔧 セットアップガイド</h4>
+        <p>GitHub CLIのインストールから、リポジトリ作成、チームメンバーの初期設定まで</p>
+      </div>
+    </div>
+
+    <h3>設定ファイル</h3>
+    <div class="overview-grid">
+      <div class="overview-card" onclick="navigate('claude-md')">
+        <h4>📄 CLAUDE.md</h4>
+        <p>プロジェクト共通ルール — ビルドコマンド、コードスタイル、アーキテクチャ設計</p>
+      </div>
+      <div class="overview-card" onclick="navigate('settings-json')">
+        <h4>⚙️ settings.json</h4>
+        <p>パーミッション制御、Hooks設定（自動フォーマット、通知、タスク完了チェック）</p>
+      </div>
+    </div>
+
+    <h3>パス別ルール (.claude/rules/)</h3>
+    <div class="overview-grid">
+      <div class="overview-card" onclick="navigate('rule-frontend')">
+        <h4>🎨 フロントエンド</h4>
+        <p>React関数コンポーネント、Hooks、CSS、ディレクトリ配置ルール</p>
+      </div>
+      <div class="overview-card" onclick="navigate('rule-backend')">
+        <h4>🖥️ バックエンド</h4>
+        <p>RESTful設計、zodバリデーション、レイヤー分離、ログ管理</p>
+      </div>
+      <div class="overview-card" onclick="navigate('rule-testing')">
+        <h4>🧪 テスト</h4>
+        <p>AAAパターン、モック方針、カバレッジ目標、ファクトリ関数</p>
+      </div>
+    </div>
+
+    <h3>スキル (.claude/skills/)</h3>
+    <div class="overview-grid">
+      <div class="overview-card" onclick="navigate('skill-fix-issue')">
+        <h4>🔨 fix-issue</h4>
+        <p>GitHub Issueの分析→ブランチ作成→テスト→修正→PR作成を自動化</p>
+      </div>
+      <div class="overview-card" onclick="navigate('skill-review-pr')">
+        <h4>👀 review-pr</h4>
+        <p>PR差分をフォークコンテキストでレビュー（バグ、セキュリティ、パフォーマンス）</p>
+      </div>
+      <div class="overview-card" onclick="navigate('skill-commit')">
+        <h4>💾 commit</h4>
+        <p>変更差分を分析してConventional Commitメッセージを自動生成</p>
+      </div>
+      <div class="overview-card" onclick="navigate('skill-create-api')">
+        <h4>🚀 create-api</h4>
+        <p>ルーター、サービス、リポジトリ、テストを一括生成</p>
+      </div>
+    </div>
+
+    <h3>サブエージェント (.claude/agents/)</h3>
+    <div class="overview-grid">
+      <div class="overview-card" onclick="navigate('agent-security')">
+        <h4>🛡️ security-reviewer</h4>
+        <p>インジェクション、認証、機密情報、依存関係の脆弱性を検出</p>
+      </div>
+      <div class="overview-card" onclick="navigate('agent-test')">
+        <h4>✅ test-writer</h4>
+        <p>ソースコード分析→テストケース設計→テスト作成・実行</p>
+      </div>
+    </div>
+
+    <h3>GitHub テンプレート (.github/)</h3>
+    <div class="overview-grid">
+      <div class="overview-card" onclick="navigate('pr-template')">
+        <h4>📋 PRテンプレート</h4>
+        <p>変更概要、テストチェックリスト、レビュー観点、スクリーンショット欄</p>
+      </div>
+      <div class="overview-card" onclick="navigate('issue-bug')">
+        <h4>🐛 バグ報告</h4>
+        <p>再現手順、期待動作、環境情報、エラーログ</p>
+      </div>
+      <div class="overview-card" onclick="navigate('issue-feature')">
+        <h4>✨ 機能リクエスト</h4>
+        <p>背景・課題、提案する解決策、代替案、受け入れ基準</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top: 32px">
+      <div class="card-title"><span class="icon">📁</span> ファイル構成</div>
+<pre><code>project-root/
+├── CLAUDE.md                         # プロジェクト共通ルール（Git管理）
+├── CLAUDE.local.md.template          # 個人設定テンプレート
+├── .claude/
+│   ├── settings.json                 # パーミッション・Hooks設定
+│   ├── rules/
+│   │   ├── frontend.md               # フロントエンドルール
+│   │   ├── backend.md                # バックエンドルール
+│   │   └── testing.md                # テストルール
+│   ├── skills/
+│   │   ├── fix-issue/SKILL.md        # Issue修正ワークフロー
+│   │   ├── review-pr/SKILL.md        # PRレビュー
+│   │   ├── commit/SKILL.md           # コミット自動化
+│   │   └── create-api/SKILL.md       # API生成
+│   └── agents/
+│       ├── security-reviewer.md      # セキュリティ専門エージェント
+│       └── test-writer.md            # テスト作成エージェント
+├── .github/
+│   ├── PULL_REQUEST_TEMPLATE.md      # PRテンプレート
+│   └── ISSUE_TEMPLATE/
+│       ├── bug_report.md             # バグ報告テンプレート
+│       └── feature_request.md        # 機能リクエストテンプレート
+├── .gitignore
+└── docs/
+    ├── index.html                    # このページ
+    ├── TEAM_DEVELOPMENT_GUIDE.md     # チーム開発ガイドライン
+    └── SETUP_GUIDE.md                # セットアップガイド</code></pre>
+    </div>
+  </section>
+
+  <!-- ===== Team Development Guide ===== -->
+  <section class="doc-section" id="team-guide">
+    <h2>チーム開発ガイドライン <span class="badge">docs/TEAM_DEVELOPMENT_GUIDE.md</span></h2>
+    <p class="section-desc">Anthropic公式ベストプラクティスに基づくチーム開発運用ガイド</p>
+
+    <h3>1. 基本原則</h3>
+
+    <h4>1.1 検証可能な作業を心がける</h4>
+    <p>Claude Codeの品質を最大化する最も重要なポイントは「Claudeが自分の作業を検証できる手段を提供する」こと。</p>
+    <ul>
+      <li>テストコードを書いてから実装を依頼する（TDD）</li>
+      <li>期待する出力やスクリーンショットを提示する</li>
+      <li><code>npm test</code> や <code>npm run lint</code> など検証コマンドを明示する</li>
+      <li>根本原因の解決を求め、エラー抑制は避ける</li>
+    </ul>
+
+    <h4>1.2 探索 → 計画 → 実装 → コミット</h4>
+    <ol>
+      <li><strong>探索（Plan Mode）</strong>: コードベースを読み、構造を理解する</li>
+      <li><strong>計画（Plan Mode）</strong>: 実装計画を作成し、レビューする</li>
+      <li><strong>実装（Normal Mode）</strong>: 計画に沿ってコードを書き、テストで検証する</li>
+      <li><strong>コミット</strong>: 説明的なメッセージでコミットし、PRを作成する</li>
+    </ol>
+    <p>小さな修正（typo、ログ追加、変数名変更）は計画をスキップして直接実装してよい。</p>
+
+    <h4>1.3 具体的なコンテキストを提供する</h4>
+    <table>
+      <thead><tr><th>悪い例</th><th>良い例</th></tr></thead>
+      <tbody>
+        <tr><td>「テストを追加して」</td><td>「foo.pyにログアウト時のエッジケースのテストを書いて。モックは避けて」</td></tr>
+        <tr><td>「ログインバグを直して」</td><td>「セッションタイムアウト後にログインが失敗する。src/auth/のトークンリフレッシュを確認して、再現テストを書いてから修正して」</td></tr>
+        <tr><td>「カレンダーウィジェットを追加して」</td><td>「HotDogWidget.phpのパターンを参考に、月選択とページネーション付きのカレンダーウィジェットを実装して」</td></tr>
+      </tbody>
+    </table>
+
+    <h3>2. コンテキスト管理</h3>
+
+    <h4>2.1 コンテキストウィンドウは最重要リソース</h4>
+    <p>Claudeのコンテキストウィンドウは会話全体、読み込んだファイル、コマンド出力で埋まる。パフォーマンスはコンテキストが埋まるほど低下する。</p>
+    <ul>
+      <li>無関係なタスク間では <code>/clear</code> でリセットする</li>
+      <li>2回以上の修正で解決しない場合は <code>/clear</code> して最初からやり直す</li>
+      <li>調査タスクはサブエージェントに委譲してメインコンテキストを保護する</li>
+      <li><code>/compact</code> で会話を要約してコンテキストを節約する</li>
+    </ul>
+
+    <h4>2.2 セッション管理</h4>
+    <ul>
+      <li><code>claude --continue</code>: 直前のセッションを再開</li>
+      <li><code>claude --resume</code>: 過去のセッション一覧から選択</li>
+      <li><code>/rename</code>: セッションに名前をつけて管理（例: <code>oauth-migration</code>）</li>
+    </ul>
+
+    <h3>3. ファイル構成</h3>
+    <div class="card">
+<pre style="margin:0;border:none"><code>project-root/
+├── CLAUDE.md                    # プロジェクト共通ルール（Git管理）
+├── CLAUDE.local.md              # 個人設定（.gitignore対象）
+├── .claude/
+│   ├── settings.json            # プロジェクト設定（Git管理）
+│   ├── settings.local.json      # 個人設定（.gitignore対象）
+│   ├── rules/                   # パス別ルール
+│   ├── skills/                  # カスタムスキル
+│   └── agents/                  # カスタムサブエージェント
+├── .github/
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   └── ISSUE_TEMPLATE/
+└── .gitignore</code></pre>
+    </div>
+
+    <h3>4. CLAUDE.md の書き方</h3>
+
+    <h4>4.1 基本方針</h4>
+    <ul>
+      <li>200行以内に収める（長すぎるとClaudeが指示を見落とす）</li>
+      <li>Claudeが推測できない情報だけを書く</li>
+      <li>具体的で検証可能な指示にする</li>
+      <li>定期的にレビューし、不要な項目を削除する</li>
+    </ul>
+
+    <h4>4.2 書くべき内容</h4>
+    <ul>
+      <li>Claudeが推測できないBashコマンド</li>
+      <li>デフォルトと異なるコードスタイルルール</li>
+      <li>テスト実行方法、推奨テストランナー</li>
+      <li>ブランチ命名規則、PR規約</li>
+      <li>プロジェクト固有のアーキテクチャ決定</li>
+      <li>環境変数や開発環境の特殊設定</li>
+      <li>よくあるハマりポイント</li>
+    </ul>
+
+    <h4>4.3 書くべきでない内容</h4>
+    <ul>
+      <li>Claudeがコードを読めばわかること</li>
+      <li>言語の標準的な規約</li>
+      <li>詳細なAPIドキュメント（リンクで代替）</li>
+      <li>頻繁に変更される情報</li>
+      <li>ファイルごとの説明</li>
+      <li>「クリーンなコードを書く」のような自明な指示</li>
+    </ul>
+
+    <h3>5. チーム開発フロー</h3>
+
+    <h4>5.1 ブランチ戦略</h4>
+<pre><code>main ← develop ← feature/xxx
+                ← fix/xxx
+                ← refactor/xxx</code></pre>
+
+    <h4>5.2 コミットメッセージ規約</h4>
+<pre><code>&lt;type&gt;(&lt;scope&gt;): &lt;description&gt;
+
+feat:     新機能
+fix:      バグ修正
+refactor: リファクタリング
+test:     テスト追加・修正
+docs:     ドキュメント
+chore:    ビルド・設定変更</code></pre>
+
+    <h4>5.3 PRフロー</h4>
+    <ol>
+      <li>featureブランチで開発</li>
+      <li>Claude Codeでテスト実行・リント通過を確認</li>
+      <li>PRを作成（テンプレートに従う）</li>
+      <li>別セッションのClaudeでレビュー（Writer/Reviewerパターン）</li>
+      <li>レビュー指摘を修正</li>
+      <li>マージ</li>
+    </ol>
+
+    <h4>5.4 Writer/Reviewer パターン</h4>
+    <table>
+      <thead><tr><th>セッションA（Writer）</th><th>セッションB（Reviewer）</th></tr></thead>
+      <tbody>
+        <tr><td>機能を実装</td><td>—</td></tr>
+        <tr><td>—</td><td>PRのレビューを実施。エッジケース、レースコンディション、既存パターンとの一貫性を確認</td></tr>
+        <tr><td>レビューフィードバックを元に修正</td><td>—</td></tr>
+      </tbody>
+    </table>
+
+    <h3>6. 禁止事項・注意事項</h3>
+
+    <h4>6.1 よくあるアンチパターン</h4>
+    <table>
+      <thead><tr><th>アンチパターン</th><th>対策</th></tr></thead>
+      <tbody>
+        <tr><td>キッチンシンクセッション</td><td>タスク間で <code>/clear</code> する</td></tr>
+        <tr><td>何度も修正を繰り返す</td><td>2回失敗したら <code>/clear</code> して良いプロンプトで再開</td></tr>
+        <tr><td>CLAUDE.mdが肥大化</td><td>不要な指示を削除。コードを読めばわかることは書かない</td></tr>
+        <tr><td>検証なしで信頼</td><td>テスト、スクリプト、スクリーンショットで必ず検証</td></tr>
+        <tr><td>無限探索</td><td>調査はスコープを絞るか、サブエージェントに委譲</td></tr>
+      </tbody>
+    </table>
+
+    <h4>6.2 セキュリティ</h4>
+    <ul>
+      <li>機密情報（APIキー、パスワード）をCLAUDE.mdやコミットに含めない</li>
+      <li><code>.env</code> ファイルは <code>.gitignore</code> に含める</li>
+      <li>セキュリティレビュー用サブエージェントを活用する</li>
+    </ul>
+
+    <h3>7. スキル・フック・サブエージェントの使い分け</h3>
+    <table>
+      <thead><tr><th>機能</th><th>用途</th><th>実行タイミング</th></tr></thead>
+      <tbody>
+        <tr><td>CLAUDE.md</td><td>常に適用するルール・規約</td><td>毎セッション開始時に自動読み込み</td></tr>
+        <tr><td>.claude/rules/</td><td>パス別ルール</td><td>対象ファイル操作時に自動読み込み</td></tr>
+        <tr><td>Skills</td><td>再利用可能なワークフロー</td><td>ユーザー or Claude が必要時に起動</td></tr>
+        <tr><td>Hooks</td><td>確実に実行すべき自動処理</td><td>特定イベント発生時に必ず実行</td></tr>
+        <tr><td>Subagents</td><td>隔離された専門タスク</td><td>Claude が委譲 or ユーザー指示時</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ===== Setup Guide ===== -->
+  <section class="doc-section" id="setup-guide">
+    <h2>セットアップガイド <span class="badge">docs/SETUP_GUIDE.md</span></h2>
+    <p class="section-desc">GitHub CLIのインストールからリポジトリ作成、チームメンバーの初期設定まで</p>
+
+    <h3>1. GitHub CLIのインストール</h3>
+
+    <h4>macOS（Homebrew）</h4>
+<pre><code>brew install gh</code></pre>
+
+    <h4>Windows</h4>
+<pre><code>winget install --id GitHub.cli</code></pre>
+
+    <h4>Linux（Ubuntu/Debian）</h4>
+<pre><code>(type -p wget &gt;/dev/null || (sudo apt update &amp;&amp; sudo apt-get install wget -y)) \
+  &amp;&amp; sudo mkdir -p -m 755 /etc/apt/keyrings \
+  &amp;&amp; out=$(wget -nv -O- https://cli.github.com/packages/githubcli-archive-keyring.gpg) \
+  &amp;&amp; echo "$out" | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg &gt; /dev/null \
+  &amp;&amp; sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+  &amp;&amp; echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list &gt; /dev/null \
+  &amp;&amp; sudo apt update \
+  &amp;&amp; sudo apt install gh -y</code></pre>
+
+    <h3>2. GitHub CLIの認証</h3>
+<pre><code>gh auth login</code></pre>
+    <p>対話的に以下を選択:</p>
+    <ol>
+      <li><code>GitHub.com</code> を選択</li>
+      <li><code>HTTPS</code> を選択</li>
+      <li>認証方法: <code>Login with a web browser</code> を選択</li>
+      <li>表示されるワンタイムコードをブラウザで入力</li>
+    </ol>
+    <p>認証の確認:</p>
+<pre><code>gh auth status</code></pre>
+
+    <h3>3. リポジトリの作成とプッシュ</h3>
+<pre><code># テンプレートフォルダに移動
+cd ~/Documents/claude-code-team-template
+
+# ブランチ名をmainに変更
+git branch -m main
+
+# 初回コミット
+git commit -m "feat: Claude Code チーム開発環境テンプレートを追加"
+
+# GitHubにプライベートリポジトリを作成してプッシュ
+gh repo create monogatari-it-dept/claude-code-setup --private --source=. --push</code></pre>
+
+    <h3>4. チームメンバーの初期セットアップ</h3>
+<pre><code># リポジトリをクローン
+git clone https://github.com/monogatari-it-dept/claude-code-setup.git
+cd claude-code-setup
+
+# 個人設定ファイルを作成
+cp CLAUDE.local.md.template CLAUDE.local.md
+
+# CLAUDE.local.md を編集して個人の好みを記入
+# （このファイルは .gitignore に含まれるのでチームには共有されない）
+
+# 依存パッケージのインストール（package.json作成後）
+npm install</code></pre>
+
+    <h3>5. Claude Codeの推奨初期設定（各メンバー）</h3>
+    <p>ユーザーレベルの設定（<code>~/.claude/settings.json</code>）:</p>
+<pre><code>{
+  "autoMemoryEnabled": true
+}</code></pre>
+    <p>ユーザーレベルのCLAUDE.md（<code>~/.claude/CLAUDE.md</code>）の例:</p>
+<pre><code># 個人設定
+- 回答は日本語で行う
+- コミットメッセージは日本語で書く</code></pre>
+
+    <h3>6. 動作確認</h3>
+<pre><code># Claude Codeでプロジェクトを開く
+cd claude-code-setup
+claude
+
+# 以下を確認:
+# 1. /memory でCLAUDE.mdが読み込まれていることを確認
+# 2. /hooks でHooksが設定されていることを確認
+# 3. /fix-issue や /commit などのスキルが利用可能か確認</code></pre>
+  </section>
+
+  <!-- ===== CLAUDE.md ===== -->
+  <section class="doc-section" id="claude-md">
+    <h2>CLAUDE.md <span class="badge">プロジェクトルート</span></h2>
+    <p class="section-desc">毎セッション開始時に自動読み込みされるプロジェクト共通ルール</p>
+
+    <h3>ビルド・実行コマンド</h3>
+    <table>
+      <thead><tr><th>操作</th><th>コマンド</th></tr></thead>
+      <tbody>
+        <tr><td>パッケージマネージャ</td><td><code>npm</code>（yarn, pnpmは不使用）</td></tr>
+        <tr><td>開発サーバー</td><td><code>npm run dev</code></td></tr>
+        <tr><td>ビルド</td><td><code>npm run build</code></td></tr>
+        <tr><td>リント</td><td><code>npm run lint</code></td></tr>
+        <tr><td>フォーマット</td><td><code>npm run format</code></td></tr>
+        <tr><td>テスト全体</td><td><code>npm test</code></td></tr>
+        <tr><td>単一テスト</td><td><code>npm test -- --grep "テスト名"</code></td></tr>
+        <tr><td>型チェック</td><td><code>npx tsc --noEmit</code></td></tr>
+      </tbody>
+    </table>
+
+    <h3>コードスタイル</h3>
+    <ul>
+      <li>ES Modules（<code>import/export</code>）を使用。CommonJS（<code>require</code>）は禁止</li>
+      <li>import時はdestructureを推奨</li>
+      <li>インデントは2スペース</li>
+      <li>セミコロンは使用する</li>
+      <li>文字列はシングルクォート</li>
+      <li>変数・関数名は <code>camelCase</code>、クラス名は <code>PascalCase</code>、定数は <code>UPPER_SNAKE_CASE</code></li>
+      <li>型定義は <code>interface</code> を優先（<code>type</code> は合併型や交差型に限定）</li>
+      <li><code>any</code> 型は禁止。<code>unknown</code> + 型ガードを使用する</li>
+    </ul>
+
+    <h3>ワークフロー</h3>
+    <ul>
+      <li><strong>IMPORTANT:</strong> コード変更後は必ず型チェック（<code>npx tsc --noEmit</code>）を実行すること</li>
+      <li>テスト実行時はパフォーマンスのため単一テストを推奨。全体テストはコミット前のみ</li>
+      <li>コミットメッセージは <code>&lt;type&gt;(&lt;scope&gt;): &lt;description&gt;</code> 形式</li>
+      <li>ブランチ名は <code>feature/xxx</code>、<code>fix/xxx</code>、<code>refactor/xxx</code> 形式</li>
+    </ul>
+
+    <h3>アーキテクチャ</h3>
+    <table>
+      <thead><tr><th>レイヤー</th><th>パス</th></tr></thead>
+      <tbody>
+        <tr><td>フロントエンド</td><td><code>src/client/</code></td></tr>
+        <tr><td>バックエンド</td><td><code>src/server/</code></td></tr>
+        <tr><td>共有型定義</td><td><code>src/shared/types/</code></td></tr>
+        <tr><td>APIエンドポイント</td><td><code>src/server/api/</code>（RESTful設計）</td></tr>
+        <tr><td>テスト</td><td>各ソースファイルと同階層に <code>.test.ts</code></td></tr>
+      </tbody>
+    </table>
+
+    <h3>注意事項</h3>
+    <ul>
+      <li><code>.env</code> ファイルは絶対にコミットしない</li>
+      <li><code>package-lock.json</code> は変更しない（<code>npm install</code> 以外で）</li>
+      <li>データベースマイグレーションファイルは手動で確認する</li>
+      <li>外部API呼び出しには必ずエラーハンドリングとリトライを実装する</li>
+    </ul>
+  </section>
+
+  <!-- ===== settings.json ===== -->
+  <section class="doc-section" id="settings-json">
+    <h2>settings.json <span class="badge">.claude/settings.json</span></h2>
+    <p class="section-desc">パーミッション制御とHooks設定</p>
+
+    <h3>パーミッション — 許可リスト</h3>
+    <div class="card">
+<pre style="margin:0;border:none"><code>"allow": [
+  "Bash(npm run lint *)",
+  "Bash(npm run format *)",
+  "Bash(npm test *)",
+  "Bash(npm run dev *)",
+  "Bash(npm run build *)",
+  "Bash(npx tsc *)",
+  "Bash(git status *)", "Bash(git log *)", "Bash(git diff *)",
+  "Bash(git add *)", "Bash(git commit *)", "Bash(git branch *)",
+  "Bash(git checkout *)", "Bash(git switch *)",
+  "Bash(git push *)", "Bash(git pull *)",
+  "Bash(gh pr *)", "Bash(gh issue *)"
+]</code></pre>
+    </div>
+
+    <h3>パーミッション — 拒否リスト</h3>
+    <div class="card">
+<pre style="margin:0;border:none"><code>"deny": [
+  "Bash(rm -rf /)",
+  "Bash(git push --force *)",
+  "Bash(git reset --hard *)",
+  "Bash(npm publish *)"
+]</code></pre>
+    </div>
+
+    <h3>Hooks</h3>
+
+    <h4>PostToolUse — 自動フォーマット</h4>
+    <p><span class="tag tag-green">Edit | Write</span> トリガー時にPrettierで自動フォーマット</p>
+<pre><code>jq -r '.tool_input.file_path // empty' | xargs -I {} sh -c \
+  'case "{}" in *.ts|*.tsx|*.js|*.jsx|*.json|*.css|*.md) npx prettier --write "{}" 2>/dev/null || true;; esac'</code></pre>
+
+    <h4>Notification — デスクトップ通知</h4>
+    <p>Claudeがユーザー入力を待っている時にOS通知を送信</p>
+<pre><code># macOS
+osascript -e 'display notification "Claude Code が入力を待っています" with title "Claude Code"'
+# Linux
+notify-send 'Claude Code' 'Claude Code が入力を待っています'</code></pre>
+
+    <h4>Stop — タスク完了チェック</h4>
+    <p>セッション停止時にプロンプトで未完了タスクを確認</p>
+<pre><code>ユーザーから依頼されたすべてのタスクが完了しているか確認してください。
+未完了のタスクがある場合は {"ok": false, "reason": "残りのタスク内容"} で応答してください。</code></pre>
+  </section>
+
+  <!-- ===== Rules: Frontend ===== -->
+  <section class="doc-section" id="rule-frontend">
+    <h2>フロントエンドルール <span class="badge">.claude/rules/frontend.md</span></h2>
+    <div class="frontmatter">対象パス: <code>src/client/**/*.{ts,tsx}</code>, <code>src/client/**/*.css</code></div>
+
+    <ul>
+      <li>Reactコンポーネントは<strong>関数コンポーネント</strong>で作成する（クラスコンポーネントは禁止）</li>
+      <li>状態管理にはReact Hooks（useState, useReducer, useContext）を使用する</li>
+      <li>コンポーネントファイル名は <code>PascalCase</code>（例: UserProfile.tsx）</li>
+      <li>CSSモジュールまたはTailwind CSSを使用する。インラインスタイルは避ける</li>
+      <li>ページコンポーネントは <code>src/client/pages/</code> に配置</li>
+      <li>共通コンポーネントは <code>src/client/components/</code> に配置</li>
+      <li>カスタムHooksは <code>src/client/hooks/</code> に配置</li>
+      <li>APIコールは <code>src/client/api/</code> に集約する（コンポーネント内で直接fetchしない）</li>
+      <li>すべてのユーザー入力にバリデーションを実装する</li>
+      <li>エラーバウンダリを適切に配置する</li>
+    </ul>
+  </section>
+
+  <!-- ===== Rules: Backend ===== -->
+  <section class="doc-section" id="rule-backend">
+    <h2>バックエンドルール <span class="badge">.claude/rules/backend.md</span></h2>
+    <div class="frontmatter">対象パス: <code>src/server/**/*.ts</code></div>
+
+    <ul>
+      <li>APIエンドポイントは<strong>RESTful設計</strong>に従う</li>
+      <li>URLパスは <code>kebab-case</code>、JSONプロパティは <code>camelCase</code></li>
+      <li>リストエンドポイントには必ずページネーションを実装する</li>
+      <li>すべてのエンドポイントに入力バリデーションを実装する（<code>zod</code> を使用）</li>
+      <li>エラーレスポンスは統一フォーマット: <code>{ error: { code: string, message: string } }</code></li>
+      <li>データベースアクセスは <code>src/server/repositories/</code> に集約</li>
+      <li>ビジネスロジックは <code>src/server/services/</code> に配置</li>
+      <li>ミドルウェアは <code>src/server/middleware/</code> に配置</li>
+      <li>外部API呼び出しにはリトライとタイムアウトを必ず設定する</li>
+      <li>環境変数は <code>src/server/config.ts</code> で一元管理（process.envを直接参照しない）</li>
+      <li>ログ出力はロガーライブラリ経由で行う（<code>console.log</code> は禁止）</li>
+    </ul>
+  </section>
+
+  <!-- ===== Rules: Testing ===== -->
+  <section class="doc-section" id="rule-testing">
+    <h2>テストルール <span class="badge">.claude/rules/testing.md</span></h2>
+    <div class="frontmatter">対象パス: <code>**/*.test.ts</code>, <code>**/*.test.tsx</code>, <code>**/*.spec.ts</code></div>
+
+    <ul>
+      <li>テストファイルはソースファイルと同階層に <code>.test.ts</code> で作成する</li>
+      <li>テスト名は日本語で記述してよい（可読性を重視）</li>
+      <li><strong>Arrange-Act-Assert</strong> パターンに従う</li>
+      <li>モックは最小限にする。実際のデータベースやAPIに依存する場合のみ使用</li>
+      <li>テストデータはファクトリ関数で作成する（ハードコーディングしない）</li>
+      <li>各テストは他のテストに依存しない独立したものにする</li>
+      <li>エッジケース（null, undefined, 空配列, 境界値）を必ずテストする</li>
+      <li>非同期処理のテストには <code>async/await</code> を使用する</li>
+      <li>カバレッジ目標: ビジネスロジック80%以上、ユーティリティ関数90%以上</li>
+    </ul>
+  </section>
+
+  <!-- ===== Skill: fix-issue ===== -->
+  <section class="doc-section" id="skill-fix-issue">
+    <h2>fix-issue <span class="badge">.claude/skills/fix-issue/SKILL.md</span></h2>
+    <p class="section-desc">GitHub Issueを分析して修正するワークフロー</p>
+
+    <div class="frontmatter">
+      <code>disable-model-invocation: true</code> — ユーザーが <code>/fix-issue</code> で手動起動<br>
+      <code>allowed-tools:</code> Bash(gh *) Bash(git *) Bash(npm test *) Bash(npx tsc *)
+    </div>
+
+    <p>使い方: <code>/fix-issue 42</code>（Issue番号を指定）</p>
+
+    <h3>ワークフロー</h3>
+    <ol>
+      <li><code>gh issue view $ARGUMENTS</code> でIssueの詳細を取得</li>
+      <li>Issue内容を分析し、関連するコードを特定</li>
+      <li>修正用ブランチを作成: <code>git checkout -b fix/$ARGUMENTS-&lt;簡潔な説明&gt;</code></li>
+      <li>問題を再現するテストを作成する（テストが失敗することを確認）</li>
+      <li>修正を実装する</li>
+      <li>テストが通ることを確認: <code>npm test</code></li>
+      <li>型チェック: <code>npx tsc --noEmit</code></li>
+      <li>リント: <code>npm run lint</code></li>
+      <li>説明的なコミットメッセージで変更をコミット</li>
+      <li>PRを作成: <code>gh pr create</code></li>
+    </ol>
+  </section>
+
+  <!-- ===== Skill: review-pr ===== -->
+  <section class="doc-section" id="skill-review-pr">
+    <h2>review-pr <span class="badge">.claude/skills/review-pr/SKILL.md</span></h2>
+    <p class="section-desc">PRのコードレビューを実施する</p>
+
+    <div class="frontmatter">
+      <code>context: fork</code> — フォークされたサブエージェントで実行（メインコンテキストを保護）<br>
+      <code>agent: Explore</code><br>
+      <code>allowed-tools:</code> Bash(gh *)
+    </div>
+
+    <p>使い方: <code>/review-pr 15</code>（PR番号を指定）</p>
+
+    <h3>動的コンテキスト注入</h3>
+    <ul>
+      <li><code>!`gh pr diff $ARGUMENTS`</code> — PR差分</li>
+      <li><code>!`gh pr view $ARGUMENTS`</code> — PR情報</li>
+      <li><code>!`gh pr diff $ARGUMENTS --name-only`</code> — 変更ファイル一覧</li>
+    </ul>
+
+    <h3>レビュー観点</h3>
+    <ol>
+      <li><span class="severity-critical">バグ・ロジックエラー</span>: エッジケースの見落とし、off-by-oneエラー、null/undefinedの未チェック</li>
+      <li><span class="severity-critical">セキュリティ</span>: SQLインジェクション、XSS、認証・認可の不備</li>
+      <li><span class="severity-warning">パフォーマンス</span>: N+1クエリ、不要な再レンダリング、メモリリーク</li>
+      <li><span class="severity-info">コード品質</span>: 命名、責務の分離、DRY原則</li>
+      <li><span class="severity-info">アーキテクチャ</span>: 既存パターンとの一貫性、依存関係の方向</li>
+    </ol>
+
+    <h3>出力形式</h3>
+    <table>
+      <thead><tr><th>項目</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td>深刻度</td><td>🔴 Critical / 🟡 Warning / 🔵 Info</td></tr>
+        <tr><td>ファイル</td><td>ファイルパスと行番号</td></tr>
+        <tr><td>問題</td><td>具体的な問題の説明</td></tr>
+        <tr><td>提案</td><td>修正案</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ===== Skill: commit ===== -->
+  <section class="doc-section" id="skill-commit">
+    <h2>commit <span class="badge">.claude/skills/commit/SKILL.md</span></h2>
+    <p class="section-desc">現在の変更をステージングしてコミットする</p>
+
+    <div class="frontmatter">
+      <code>disable-model-invocation: true</code> — ユーザーが <code>/commit</code> で手動起動<br>
+      <code>allowed-tools:</code> Bash(git *)
+    </div>
+
+    <p>使い方: <code>/commit</code> または <code>/commit ログイン機能を追加</code></p>
+
+    <h3>ワークフロー</h3>
+    <ol>
+      <li><code>git status</code> で変更ファイルを確認</li>
+      <li><code>git diff</code> でステージされていない変更を確認</li>
+      <li><code>git diff --cached</code> でステージ済みの変更を確認</li>
+      <li>変更内容を分析してコミットメッセージを生成</li>
+      <li>関連するファイルをステージング（.envや機密ファイルは除外）</li>
+      <li>コミットを実行</li>
+    </ol>
+
+    <h3>メッセージ形式</h3>
+<pre><code>&lt;type&gt;(&lt;scope&gt;): &lt;日本語で簡潔な説明&gt;
+
+&lt;変更の詳細（必要に応じて）&gt;</code></pre>
+  </section>
+
+  <!-- ===== Skill: create-api ===== -->
+  <section class="doc-section" id="skill-create-api">
+    <h2>create-api <span class="badge">.claude/skills/create-api/SKILL.md</span></h2>
+    <p class="section-desc">新しいRESTful APIエンドポイントを一括生成する</p>
+
+    <div class="frontmatter">
+      <code>disable-model-invocation: true</code> — ユーザーが <code>/create-api</code> で手動起動
+    </div>
+
+    <p>使い方: <code>/create-api users</code>（リソース名を指定）</p>
+
+    <h3>生成ファイル</h3>
+    <table>
+      <thead><tr><th>レイヤー</th><th>パス</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td>ルーター</td><td><code>src/server/api/&lt;resource&gt;.ts</code></td><td>RESTful URL設計、zodバリデーション、HTTPステータスコード</td></tr>
+        <tr><td>サービス層</td><td><code>src/server/services/&lt;resource&gt;Service.ts</code></td><td>ビジネスロジック、エラーハンドリング</td></tr>
+        <tr><td>リポジトリ</td><td><code>src/server/repositories/&lt;resource&gt;Repository.ts</code></td><td>データベースアクセスの抽象化</td></tr>
+        <tr><td>テスト</td><td>各ファイルの同階層</td><td>統合テスト、ユニットテスト（正常系・異常系・エッジケース）</td></tr>
+      </tbody>
+    </table>
+
+    <h3>検証ステップ</h3>
+    <ol>
+      <li>型チェック: <code>npx tsc --noEmit</code></li>
+      <li>テスト実行: <code>npm test</code></li>
+      <li>リント: <code>npm run lint</code></li>
+    </ol>
+  </section>
+
+  <!-- ===== Agent: security-reviewer ===== -->
+  <section class="doc-section" id="agent-security">
+    <h2>security-reviewer <span class="badge">.claude/agents/security-reviewer.md</span></h2>
+    <p class="section-desc">コードのセキュリティ脆弱性をレビューする専門エージェント</p>
+
+    <div class="frontmatter">
+      <code>tools:</code> Read, Grep, Glob, Bash<br>
+      <code>model:</code> sonnet
+    </div>
+
+    <h3>レビュー対象</h3>
+    <ol>
+      <li><strong>インジェクション脆弱性</strong>: SQLインジェクション、XSS、コマンドインジェクション</li>
+      <li><strong>認証・認可の不備</strong>: 認証バイパス、権限昇格、セッション管理の問題</li>
+      <li><strong>機密情報の露出</strong>: コード内のシークレット、ログへの機密情報出力</li>
+      <li><strong>安全でないデータ処理</strong>: 暗号化の不備、入力の未検証、安全でないデシリアライゼーション</li>
+      <li><strong>依存関係の脆弱性</strong>: 既知の脆弱性を持つパッケージの使用</li>
+    </ol>
+
+    <h3>出力形式</h3>
+    <table>
+      <thead><tr><th>項目</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td>深刻度</td><td>Critical / High / Medium / Low</td></tr>
+        <tr><td>場所</td><td>ファイルパスと行番号</td></tr>
+        <tr><td>種類</td><td>脆弱性の種類</td></tr>
+        <tr><td>シナリオ</td><td>攻撃シナリオの説明</td></tr>
+        <tr><td>修正案</td><td>具体的な修正案</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ===== Agent: test-writer ===== -->
+  <section class="doc-section" id="agent-test">
+    <h2>test-writer <span class="badge">.claude/agents/test-writer.md</span></h2>
+    <p class="section-desc">ソースコードを分析してテストケースを生成する専門エージェント</p>
+
+    <div class="frontmatter">
+      <code>tools:</code> Read, Grep, Glob, Write, Bash<br>
+      <code>model:</code> sonnet
+    </div>
+
+    <h3>テスト作成方針</h3>
+    <ol>
+      <li>対象コードを読んで、関数やクラスの責務を理解する</li>
+      <li>既存のテストパターンを確認する</li>
+      <li>テストケースを設計する:
+        <ul>
+          <li><span class="tag tag-green">正常系</span> 期待通りの入力での動作</li>
+          <li><span class="tag tag-red">異常系</span> 不正な入力、エラー条件での動作</li>
+          <li><span class="tag tag-yellow">境界値</span> null, undefined, 空配列, 最大値/最小値</li>
+          <li><span class="tag tag-purple">並行処理</span> 非同期処理のレースコンディション</li>
+        </ul>
+      </li>
+      <li>Arrange-Act-Assert パターンでテストコードを作成</li>
+      <li>テスト実行して全テストがパスすることを確認する</li>
+    </ol>
+  </section>
+
+  <!-- ===== PR Template ===== -->
+  <section class="doc-section" id="pr-template">
+    <h2>PR テンプレート <span class="badge">.github/PULL_REQUEST_TEMPLATE.md</span></h2>
+    <p class="section-desc">Pull Request作成時に自動適用されるテンプレート</p>
+
+    <div class="card">
+<pre style="margin:0;border:none"><code>## 概要
+&lt;!-- 変更の目的を1-3文で説明してください --&gt;
+
+## 変更内容
+- （主な変更点を箇条書きで記載）
+
+## 関連Issue
+Closes #xxx
+
+## テスト
+- [ ] ユニットテストを追加・更新した
+- [ ] 既存テストがすべてパスする（npm test）
+- [ ] 型チェックがパスする（npx tsc --noEmit）
+- [ ] リントがパスする（npm run lint）
+
+## レビュー観点
+&lt;!-- レビュアーに特に確認してほしい点があれば記載 --&gt;
+
+## スクリーンショット
+&lt;!-- UI変更がある場合はBefore/Afterのスクリーンショットを貼付 --&gt;</code></pre>
+    </div>
+  </section>
+
+  <!-- ===== Issue: Bug Report ===== -->
+  <section class="doc-section" id="issue-bug">
+    <h2>バグ報告テンプレート <span class="badge">.github/ISSUE_TEMPLATE/bug_report.md</span></h2>
+    <p class="section-desc">バグや不具合の報告に使用するIssueテンプレート</p>
+
+    <div class="card">
+<pre style="margin:0;border:none"><code>## 概要
+&lt;!-- バグの概要を簡潔に記載 --&gt;
+
+## 再現手順
+1.
+2.
+3.
+
+## 期待する動作
+&lt;!-- 本来どのように動作すべきか --&gt;
+
+## 実際の動作
+&lt;!-- 実際にどのような動作になっているか --&gt;
+
+## 環境
+- OS:
+- ブラウザ:
+- Node.jsバージョン:
+
+## エラーログ
+（エラーメッセージがあれば貼付）
+
+## スクリーンショット
+&lt;!-- 該当する場合は添付 --&gt;</code></pre>
+    </div>
+  </section>
+
+  <!-- ===== Issue: Feature Request ===== -->
+  <section class="doc-section" id="issue-feature">
+    <h2>機能リクエストテンプレート <span class="badge">.github/ISSUE_TEMPLATE/feature_request.md</span></h2>
+    <p class="section-desc">新機能や改善を提案するIssueテンプレート</p>
+
+    <div class="card">
+<pre style="margin:0;border:none"><code>## 概要
+&lt;!-- 提案する機能を1-2文で説明 --&gt;
+
+## 背景・課題
+&lt;!-- なぜこの機能が必要か、現在の課題は何か --&gt;
+
+## 提案する解決策
+&lt;!-- どのように解決すべきか --&gt;
+
+## 代替案
+&lt;!-- 検討した代替案があれば記載 --&gt;
+
+## 受け入れ基準
+- [ ]
+- [ ]
+- [ ]</code></pre>
+    </div>
+  </section>
+
+</main>
+
+<script>
+function navigate(sectionId) {
+  document.querySelectorAll('.doc-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+
+  const section = document.getElementById(sectionId);
+  const link = document.querySelector(`.nav-link[data-section="${sectionId}"]`);
+
+  if (section) section.classList.add('active');
+  if (link) link.classList.add('active');
+
+  window.scrollTo(0, 0);
+
+  // Close sidebar on mobile
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+document.querySelectorAll('.nav-link').forEach(link => {
+  link.addEventListener('click', function(e) {
+    e.preventDefault();
+    navigate(this.dataset.section);
+  });
+});
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// Close sidebar when clicking outside on mobile
+document.addEventListener('click', function(e) {
+  const sidebar = document.getElementById('sidebar');
+  const toggle = document.querySelector('.menu-toggle');
+  if (window.innerWidth <= 768 && !sidebar.contains(e.target) && !toggle.contains(e.target)) {
+    sidebar.classList.remove('open');
+  }
+});
+</script>
+
+</body>
+</html>
