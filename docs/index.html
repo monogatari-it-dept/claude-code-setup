@@ -357,6 +357,7 @@ tr:hover td { background: rgba(255,255,255,0.02); }
     <div class="nav-section-title">ガイド</div>
     <a class="nav-link" data-section="team-guide">チーム開発ガイドライン</a>
     <a class="nav-link" data-section="setup-guide">セットアップガイド</a>
+    <a class="nav-link" data-section="vscode-guide">VS Code + Claude Code</a>
   </div>
 
   <div class="nav-section">
@@ -410,6 +411,10 @@ tr:hover td { background: rgba(255,255,255,0.02); }
       <div class="overview-card" onclick="navigate('setup-guide')">
         <h4>🔧 セットアップガイド</h4>
         <p>GitHub CLIのインストールから、リポジトリ作成、チームメンバーの初期設定まで</p>
+      </div>
+      <div class="overview-card" onclick="navigate('vscode-guide')">
+        <h4>💻 VS Code + Claude Code</h4>
+        <p>チーム標準エディタのセットアップ、拡張機能、キーボードショートカット、開発フロー</p>
       </div>
     </div>
 
@@ -513,11 +518,15 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 │   └── ISSUE_TEMPLATE/
 │       ├── bug_report.md             # バグ報告テンプレート
 │       └── feature_request.md        # 機能リクエストテンプレート
+├── .vscode/
+│   ├── settings.json                 # VS Codeワークスペース設定
+│   └── extensions.json               # 推奨拡張機能リスト
 ├── .gitignore
 └── docs/
     ├── index.html                    # このページ
     ├── TEAM_DEVELOPMENT_GUIDE.md     # チーム開発ガイドライン
-    └── SETUP_GUIDE.md                # セットアップガイド</code></pre>
+    ├── SETUP_GUIDE.md                # セットアップガイド
+    └── VSCODE_SETUP_GUIDE.md         # VS Code + Claude Code ガイド</code></pre>
     </div>
   </section>
 
@@ -774,6 +783,223 @@ claude
 # 1. /memory でCLAUDE.mdが読み込まれていることを確認
 # 2. /hooks でHooksが設定されていることを確認
 # 3. /fix-issue や /commit などのスキルが利用可能か確認</code></pre>
+  </section>
+
+  <!-- ===== VS Code + Claude Code ===== -->
+  <section class="doc-section" id="vscode-guide">
+    <h2>VS Code + Claude Code 開発環境 <span class="badge">docs/VSCODE_SETUP_GUIDE.md</span></h2>
+    <p class="section-desc">チーム標準エディタとしてVS Codeを推奨し、Claude Code拡張機能を統合した開発環境を構築する</p>
+
+    <h3>なぜ VS Code + Claude Code か</h3>
+    <p>VS Codeは軽量で拡張性が高く、チーム全体で統一した開発体験を実現できる。Claude Code拡張機能を統合することで、エディタから離れることなくAIアシスタントとの対話、コードレビュー、自動修正が可能になる。</p>
+    <ul>
+      <li>エディタ内のパネルで直接Claudeと対話できる</li>
+      <li>ファイルの@メンション（行番号指定も可能）でピンポイントな質問ができる</li>
+      <li>変更のインラインdiff表示で、提案内容を確認してから適用できる</li>
+      <li>複数の会話を並行して開ける（タブ/ウィンドウ分割）</li>
+      <li>Plan Modeで実装計画をレビューしてから作業を開始できる</li>
+      <li>CLAUDE.md、Skills、Hooks、Rulesがそのまま動作する</li>
+    </ul>
+
+    <h3>前提条件</h3>
+    <table>
+      <thead><tr><th>項目</th><th>要件</th></tr></thead>
+      <tbody>
+        <tr><td>VS Code</td><td>バージョン 1.98.0 以上</td></tr>
+        <tr><td>OS</td><td>macOS 13.0+ / Windows 10 1809+ / Ubuntu 20.04+</td></tr>
+        <tr><td>Anthropicアカウント</td><td>Pro, Max, Team, Enterprise, またはConsoleプラン</td></tr>
+        <tr><td>RAM</td><td>4 GB 以上</td></tr>
+        <tr><td>ネットワーク</td><td>インターネット接続が必要</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Claude Code のインストール</h3>
+
+    <h4>CLIのインストール（ネイティブインストーラー推奨）</h4>
+    <p>macOS / Linux:</p>
+<pre><code>curl -fsSL https://claude.ai/install.sh | bash</code></pre>
+    <p>Windows PowerShell:</p>
+<pre><code>irm https://claude.ai/install.ps1 | iex</code></pre>
+    <p>Homebrew（macOS）:</p>
+<pre><code>brew install --cask claude-code</code></pre>
+    <p>インストール後の確認:</p>
+<pre><code>claude --version
+claude doctor   # 詳細な環境チェック</code></pre>
+
+    <h4>VS Code拡張機能のインストール</h4>
+    <p><code>Cmd+Shift+X</code>（Mac）/ <code>Ctrl+Shift+X</code>（Windows/Linux）で拡張機能ビューを開き、「Claude Code」で検索して <strong>Install</strong> をクリック。</p>
+
+    <h4>初回サインイン</h4>
+    <ol>
+      <li>エディタツールバー右上のSparkアイコン（✱）をクリック</li>
+      <li>サインイン画面で <strong>Sign in</strong> をクリック</li>
+      <li>ブラウザで認証を完了</li>
+    </ol>
+
+    <h3>推奨 VS Code 拡張機能</h3>
+
+    <h4>必須拡張機能</h4>
+    <table>
+      <thead><tr><th>拡張機能</th><th>ID</th><th>用途</th></tr></thead>
+      <tbody>
+        <tr><td>Claude Code</td><td><code>anthropic.claude-code</code></td><td>AI開発アシスタント</td></tr>
+        <tr><td>ESLint</td><td><code>dbaeumer.vscode-eslint</code></td><td>JavaScriptリント</td></tr>
+        <tr><td>Prettier</td><td><code>esbenp.prettier-vscode</code></td><td>コードフォーマット</td></tr>
+        <tr><td>TypeScript Importer</td><td><code>pmneo.tsimporter</code></td><td>import文の自動補完</td></tr>
+      </tbody>
+    </table>
+
+    <h4>推奨拡張機能</h4>
+    <table>
+      <thead><tr><th>拡張機能</th><th>ID</th><th>用途</th></tr></thead>
+      <tbody>
+        <tr><td>GitLens</td><td><code>eamodio.gitlens</code></td><td>Git履歴・blame表示</td></tr>
+        <tr><td>Error Lens</td><td><code>usernamehw.errorlens</code></td><td>エラーのインライン表示</td></tr>
+        <tr><td>TODO Highlight</td><td><code>wayou.vscode-todo-highlight</code></td><td>TODO/FIXMEハイライト</td></tr>
+        <tr><td>Tailwind CSS IntelliSense</td><td><code>bradlc.vscode-tailwindcss</code></td><td>Tailwindクラス補完</td></tr>
+        <tr><td>Path Intellisense</td><td><code>christian-kohler.path-intellisense</code></td><td>ファイルパス補完</td></tr>
+      </tbody>
+    </table>
+
+    <h4>一括インストールコマンド</h4>
+<pre><code># 必須
+code --install-extension anthropic.claude-code
+code --install-extension dbaeumer.vscode-eslint
+code --install-extension esbenp.prettier-vscode
+code --install-extension pmneo.tsimporter
+
+# 推奨
+code --install-extension eamodio.gitlens
+code --install-extension usernamehw.errorlens
+code --install-extension wayou.vscode-todo-highlight
+code --install-extension bradlc.vscode-tailwindcss
+code --install-extension christian-kohler.path-intellisense</code></pre>
+
+    <h3>プロジェクト設定（.vscode/）</h3>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">⚙️</span> .vscode/settings.json</div>
+<pre style="margin:0;border:none"><code>{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.preferences.quoteStyle": "single",
+  "files.eol": "\n",
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true
+}</code></pre>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">📦</span> .vscode/extensions.json</div>
+<pre style="margin:0;border:none"><code>{
+  "recommendations": [
+    "anthropic.claude-code",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "pmneo.tsimporter",
+    "eamodio.gitlens",
+    "usernamehw.errorlens"
+  ]
+}</code></pre>
+    </div>
+
+    <h3>キーボードショートカット</h3>
+    <table>
+      <thead><tr><th>操作</th><th>Mac</th><th>Windows/Linux</th></tr></thead>
+      <tbody>
+        <tr><td>フォーカス切替（エディタ⇄Claude）</td><td><code>Cmd+Esc</code></td><td><code>Ctrl+Esc</code></td></tr>
+        <tr><td>新しいタブで開く</td><td><code>Cmd+Shift+Esc</code></td><td><code>Ctrl+Shift+Esc</code></td></tr>
+        <tr><td>@メンション参照の挿入</td><td><code>Option+K</code></td><td><code>Alt+K</code></td></tr>
+        <tr><td>新しい会話</td><td><code>Cmd+N</code>（要設定）</td><td><code>Ctrl+N</code>（要設定）</td></tr>
+      </tbody>
+    </table>
+
+    <h3>パーミッションモード</h3>
+    <table>
+      <thead><tr><th>モード</th><th>説明</th></tr></thead>
+      <tbody>
+        <tr><td><span class="tag tag-green">Normal</span></td><td>各アクションの前に許可を求める（デフォルト）</td></tr>
+        <tr><td><span class="tag tag-blue">Plan</span></td><td>実装計画をMarkdownで表示し、承認後に実行する</td></tr>
+        <tr><td><span class="tag tag-yellow">Auto-accept</span></td><td>編集を許可なしで適用する（信頼できる環境のみ）</td></tr>
+      </tbody>
+    </table>
+
+    <h3>@メンションでコンテキストを提供</h3>
+<pre><code>@auth.ts このファイルの認証ロジックを説明して
+
+@src/server/api/users.ts#15-30 この部分にバリデーションを追加して
+
+@src/components/ このフォルダ内のコンポーネント一覧を教えて</code></pre>
+    <p>エディタでテキストを選択した状態で <code>Option+K</code>（Mac）/ <code>Alt+K</code> を押すと、選択範囲のファイルパスと行番号が自動挿入される。</p>
+
+    <h3>スキルの使い方（VS Code内）</h3>
+    <p>プロンプトボックスで <code>/</code> を入力するとコマンドメニューが開く:</p>
+<pre><code>/fix-issue 42        # Issue #42 を修正
+/review-pr 15        # PR #15 をレビュー
+/commit              # 変更をコミット
+/create-api users    # users APIを生成</code></pre>
+
+    <h3>チーム開発ベストプラクティス</h3>
+
+    <h4>Writer/Reviewer パターン（VS Code版）</h4>
+    <ol>
+      <li><strong>Writerセッション</strong>: メインのClaudeパネルで機能を実装</li>
+      <li><strong>Reviewerセッション</strong>: 「Open in New Tab」で新しいClaudeタブを開き、PRレビューを依頼（<code>/review-pr 15</code>）</li>
+    </ol>
+
+    <h4>Plan Mode活用</h4>
+    <ol>
+      <li>プロンプトボックス下部のモード表示をクリック → Plan を選択</li>
+      <li>実装したい機能を説明する</li>
+      <li>VS Codeが自動的に計画をMarkdownドキュメントとして表示</li>
+      <li>計画にインラインコメントでフィードバックを追加</li>
+      <li>承認後にNormal Modeに戻して実装を開始</li>
+    </ol>
+
+    <h4>チェックポイント（Undo機能）</h4>
+    <p>Claudeのメッセージにホバーすると巻き戻しボタンが表示される:</p>
+    <ul>
+      <li><strong>Fork conversation from here</strong>: この地点から会話を分岐（コードは変更なし）</li>
+      <li><strong>Rewind code to here</strong>: この地点にコードを巻き戻し（会話履歴は保持）</li>
+      <li><strong>Fork and rewind</strong>: 会話を分岐しつつコードも巻き戻し</li>
+    </ul>
+
+    <h4>Git Worktreeで並行開発</h4>
+<pre><code>claude --worktree feature-auth       # 認証機能の開発
+claude --worktree feature-dashboard  # ダッシュボードの開発</code></pre>
+    <p>各worktreeは独立したファイル状態を保持しながらGit履歴を共有する。Claudeインスタンス間のファイル競合を防げる。</p>
+
+    <h3>新メンバーのオンボーディング手順</h3>
+    <ol>
+      <li><strong>VS Codeをインストール</strong>: <a href="https://code.visualstudio.com/" target="_blank">code.visualstudio.com</a> からダウンロード</li>
+      <li><strong>Claude Codeをインストール</strong>: <code>curl -fsSL https://claude.ai/install.sh | bash</code></li>
+      <li><strong>リポジトリをクローン</strong>: <code>git clone https://github.com/monogatari-it-dept/claude-code-setup.git</code></li>
+      <li><strong>VS Codeで開く</strong>: <code>code claude-code-setup</code></li>
+      <li><strong>推奨拡張機能をインストール</strong>: VS Codeの推奨表示に従ってインストール</li>
+      <li><strong>Claude Codeにサインイン</strong>: Sparkアイコンをクリックしてブラウザ認証</li>
+      <li><strong>個人設定ファイルを作成</strong>: <code>cp CLAUDE.local.md.template CLAUDE.local.md</code></li>
+      <li><strong>動作確認</strong>: Claudeパネルで「このプロジェクトの構成を教えて」と質問</li>
+      <li><strong>スキルの確認</strong>: <code>/</code> を入力して fix-issue、review-pr 等が利用可能か確認</li>
+    </ol>
+
+    <h3>トラブルシューティング</h3>
+
+    <h4>Sparkアイコンが表示されない</h4>
+    <ul>
+      <li>ファイルが開いていることを確認（フォルダだけでは表示されない）</li>
+      <li>VS Codeバージョンを確認（1.98.0以上が必要）</li>
+      <li>「Developer: Reload Window」を実行</li>
+      <li>他のAI拡張機能を一時的に無効化</li>
+    </ul>
+
+    <h4>環境チェック</h4>
+<pre><code>claude doctor    # インストール状況と設定の詳細診断</code></pre>
   </section>
 
   <!-- ===== CLAUDE.md ===== -->

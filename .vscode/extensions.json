@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "anthropic.claude-code",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "pmneo.tsimporter",
+    "eamodio.gitlens",
+    "usernamehw.errorlens"
+  ]
+}
