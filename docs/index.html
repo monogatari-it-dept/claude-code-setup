@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Claude Code チーム開発環境 - ドキュメント</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.1/mermaid.min.js"></script>
 <style>
 :root {
   --bg: #0f1117;
@@ -328,6 +329,46 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 .severity-warning { color: var(--yellow); }
 .severity-info { color: var(--link); }
 
+/* Mermaid diagrams */
+.diagram-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px;
+  margin: 16px 0;
+  overflow-x: auto;
+}
+
+.diagram-container .mermaid {
+  display: flex;
+  justify-content: center;
+}
+
+.diagram-container .mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.diagram-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.explain-box {
+  background: rgba(126,184,218,0.06);
+  border-left: 3px solid var(--link);
+  padding: 14px 18px;
+  margin: 12px 0 20px;
+  border-radius: 0 6px 6px 0;
+  font-size: 13.5px;
+  line-height: 1.8;
+}
+
 /* Project dashboard */
 .project-table {
   width: 100%;
@@ -433,6 +474,7 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 
   <div class="nav-section">
     <div class="nav-section-title">ガイド</div>
+    <a class="nav-link" data-section="architecture">アーキテクチャ概要</a>
     <a class="nav-link" data-section="team-guide">チーム開発ガイドライン</a>
     <a class="nav-link" data-section="setup-guide">セットアップガイド</a>
     <a class="nav-link" data-section="vscode-guide">VS Code + Claude Code</a>
@@ -505,6 +547,10 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 
     <h3>ガイドドキュメント</h3>
     <div class="overview-grid">
+      <div class="overview-card" onclick="navigate('architecture')">
+        <h4>🏗️ アーキテクチャ概要</h4>
+        <p>全体構成図、開発フロー図、Claude Code拡張ポイント、セキュリティ構成を図解</p>
+      </div>
       <div class="overview-card" onclick="navigate('team-guide')">
         <h4>📘 チーム開発ガイドライン</h4>
         <p>基本原則、コンテキスト管理、ファイル構成、開発フロー、アンチパターンをカバーする包括ガイド</p>
@@ -629,6 +675,288 @@ tr:hover td { background: rgba(255,255,255,0.02); }
     ├── SETUP_GUIDE.md                # セットアップガイド
     └── VSCODE_SETUP_GUIDE.md         # VS Code + Claude Code ガイド</code></pre>
     </div>
+  </section>
+
+  <!-- ===== Architecture Overview ===== -->
+  <section class="doc-section" id="architecture">
+    <h2>アーキテクチャ概要</h2>
+    <p class="section-desc">Claude Codeチーム開発環境の全体構成、開発フロー、拡張ポイントを図解で説明します</p>
+
+    <!-- Diagram 1: Overall System -->
+    <h3>1. 全体システム構成</h3>
+    <div class="explain-box">
+      開発者はVS Code + Claude Code拡張で作業し、GitHubリポジトリを中心にチーム開発を行います。CLAUDE.mdやSettings等の設定はリポジトリにコミットされ、全メンバーで共有されます。GitHub Pagesでドキュメントを公開し、GitHub IssuesとPRでタスクと変更を管理します。
+    </div>
+    <div class="diagram-container">
+      <div class="mermaid">
+graph TB
+  subgraph DEV["開発者の環境"]
+    VSC["VS Code<br/>+ Claude Code拡張"]
+    CLI["Claude Code CLI<br/>(ターミナル)"]
+    LOCAL["ローカルリポジトリ<br/>CLAUDE.md / .claude/"]
+  end
+
+  subgraph GH["GitHub (monogatari-it-dept)"]
+    REPO["リポジトリ<br/>claude-code-setup"]
+    ISSUES["Issues<br/>タスク管理"]
+    PR["Pull Requests<br/>コードレビュー"]
+    PAGES["GitHub Pages<br/>ドキュメント公開"]
+  end
+
+  subgraph CLAUDE_CFG["Claude Code 設定 (Git管理)"]
+    CMD["CLAUDE.md<br/>共通ルール"]
+    SETTINGS[".claude/settings.json<br/>権限・Hooks"]
+    RULES[".claude/rules/<br/>パス別ルール"]
+    SKILLS[".claude/skills/<br/>ワークフロー"]
+    AGENTS[".claude/agents/<br/>専門エージェント"]
+  end
+
+  subgraph API["Anthropic API"]
+    CLAUDE_AI["Claude AI<br/>コード生成・レビュー・分析"]
+  end
+
+  VSC <-->|"会話・編集"| CLAUDE_AI
+  CLI <-->|"コマンド実行"| CLAUDE_AI
+  VSC --- LOCAL
+  CLI --- LOCAL
+  LOCAL <-->|"push / pull"| REPO
+  REPO --- ISSUES
+  REPO --- PR
+  REPO -->|"/docs"| PAGES
+  REPO --- CLAUDE_CFG
+  CLAUDE_AI -.->|"設定を読み込み"| CLAUDE_CFG
+
+  style DEV fill:#1a2332,stroke:#2a4a6b,color:#e2e4ea
+  style GH fill:#1a2a1a,stroke:#2a6b2a,color:#e2e4ea
+  style CLAUDE_CFG fill:#2a1a2a,stroke:#6b2a6b,color:#e2e4ea
+  style API fill:#2a2a1a,stroke:#6b6b2a,color:#e2e4ea
+      </div>
+    </div>
+
+    <!-- Diagram 2: Claude Code Extension Points -->
+    <h3>2. Claude Code 拡張ポイント</h3>
+    <div class="explain-box">
+      Claude Codeは5つの拡張ポイントで構成されています。CLAUDE.mdは毎セッション自動読み込みされる基本ルール、Rulesはファイルパスに応じて自動適用される条件付きルール、Skillsは手動またはClaude判断で起動するワークフロー、Hooksはツール実行やイベントに連動する自動処理、Agentsは隔離コンテキストで動く専門エージェントです。
+    </div>
+    <div class="diagram-container">
+      <div class="mermaid">
+graph LR
+  subgraph AUTO["自動読み込み"]
+    A["CLAUDE.md<br/>━━━━━━━━<br/>ビルドコマンド<br/>コードスタイル<br/>アーキテクチャ<br/>ワークフロー"]
+    B[".claude/rules/<br/>━━━━━━━━<br/>frontend.md → src/client/**<br/>backend.md → src/server/**<br/>testing.md → **/*.test.ts"]
+  end
+
+  subgraph TRIGGER["イベント駆動"]
+    C[".claude/settings.json<br/>Hooks<br/>━━━━━━━━<br/>PostToolUse → 自動フォーマット<br/>Notification → デスクトップ通知<br/>Stop → タスク完了チェック"]
+  end
+
+  subgraph MANUAL["手動起動"]
+    D[".claude/skills/<br/>━━━━━━━━<br/>/fix-issue → Issue修正<br/>/review-pr → PRレビュー<br/>/commit → コミット<br/>/create-api → API生成"]
+  end
+
+  subgraph DELEGATE["委譲実行"]
+    E[".claude/agents/<br/>━━━━━━━━<br/>security-reviewer<br/>→ 脆弱性検出<br/>test-writer<br/>→ テスト生成"]
+  end
+
+  SESSION["Claude Code<br/>セッション開始"] --> A
+  SESSION --> B
+  TOOL["ツール実行<br/>イベント発生"] --> C
+  USER["ユーザー指示<br/>/ コマンド"] --> D
+  CLAUDE_JUDGE["Claude判断<br/>or ユーザー指示"] --> E
+
+  style AUTO fill:#1a2a1a,stroke:#2a6b2a,color:#e2e4ea
+  style TRIGGER fill:#2a2a1a,stroke:#6b6b2a,color:#e2e4ea
+  style MANUAL fill:#1a2332,stroke:#2a4a6b,color:#e2e4ea
+  style DELEGATE fill:#2a1a2a,stroke:#6b2a6b,color:#e2e4ea
+      </div>
+    </div>
+
+    <!-- Diagram 3: Development Workflow -->
+    <h3>3. 開発ワークフロー</h3>
+    <div class="explain-box">
+      機能開発はIssue起票から始まり、ブランチ作成→実装→テスト→PR作成→レビュー→マージの流れで進行します。各ステップでClaude Codeのスキルやエージェントが支援します。Writer/Reviewerパターンで品質を担保します。
+    </div>
+    <div class="diagram-container">
+      <div class="mermaid">
+graph TD
+  I["Issue起票<br/>📋 バグ報告 / 機能リクエスト"] -->|"/fix-issue N"| B["ブランチ作成<br/>🌿 feature/xxx, fix/xxx"]
+  B --> P["Plan Mode<br/>📝 実装計画をレビュー"]
+  P --> D["実装<br/>💻 VS Code + Claude Code"]
+  D --> T["テスト・検証<br/>🧪 npm test / npx tsc"]
+  T -->|"失敗"| D
+  T -->|"成功<br/>/commit"| C["コミット<br/>💾 Conventional Commits"]
+  C --> PR["PR作成<br/>📤 gh pr create"]
+  PR --> R["コードレビュー<br/>👀 /review-pr N"]
+  R -->|"修正要求"| D
+  R -->|"承認"| M["マージ<br/>✅ main ← feature"]
+  M --> DEPLOY["デプロイ<br/>🚀"]
+
+  SEC["セキュリティレビュー<br/>🛡️ security-reviewer"] -.->|"自動チェック"| PR
+  TW["テスト生成<br/>✅ test-writer"] -.->|"テスト補完"| T
+
+  style I fill:#2a1a2a,stroke:#6b2a6b,color:#e2e4ea
+  style PR fill:#1a2332,stroke:#2a4a6b,color:#e2e4ea
+  style M fill:#1a2a1a,stroke:#2a6b2a,color:#e2e4ea
+  style DEPLOY fill:#2a2a1a,stroke:#6b6b2a,color:#e2e4ea
+      </div>
+    </div>
+
+    <!-- Diagram 4: File Structure -->
+    <h3>4. ファイル構成と役割</h3>
+    <div class="explain-box">
+      Git管理されるファイル（チーム共有）と、.gitignoreで除外される個人設定ファイルを明確に分離しています。これにより、チーム全体で統一されたルールを維持しつつ、各メンバーが自分好みの設定を追加できます。
+    </div>
+    <div class="diagram-container">
+      <div class="mermaid">
+graph TB
+  subgraph GIT["Git管理（チーム共有）"]
+    CM["CLAUDE.md<br/>プロジェクト共通ルール"]
+    SET[".claude/settings.json<br/>権限・Hooks"]
+    R1[".claude/rules/frontend.md"]
+    R2[".claude/rules/backend.md"]
+    R3[".claude/rules/testing.md"]
+    S1[".claude/skills/fix-issue/"]
+    S2[".claude/skills/review-pr/"]
+    S3[".claude/skills/commit/"]
+    S4[".claude/skills/create-api/"]
+    AG1[".claude/agents/security-reviewer.md"]
+    AG2[".claude/agents/test-writer.md"]
+    VS1[".vscode/settings.json"]
+    VS2[".vscode/extensions.json"]
+    GHT[".github/ テンプレート"]
+    DOC["docs/ ドキュメント"]
+  end
+
+  subgraph LOCAL[".gitignore（個人設定）"]
+    LCM["CLAUDE.local.md<br/>個人の好み・設定"]
+    LSET[".claude/settings.local.json<br/>個人の権限設定"]
+    ENV[".env<br/>環境変数・シークレット"]
+  end
+
+  CM -->|"毎セッション読み込み"| LOAD["Claude Code"]
+  LCM -->|"毎セッション読み込み"| LOAD
+  SET -->|"権限チェック"| LOAD
+  LSET -->|"個人権限を上書き"| LOAD
+
+  style GIT fill:#1a2a1a,stroke:#2a6b2a,color:#e2e4ea
+  style LOCAL fill:#2a1a1a,stroke:#6b2a2a,color:#e2e4ea
+      </div>
+    </div>
+
+    <!-- Diagram 5: Permission & Security -->
+    <h3>5. 権限とセキュリティ構成</h3>
+    <div class="explain-box">
+      settings.jsonの許可リスト・拒否リストでClaude Codeが実行できるコマンドを制御します。危険な操作（force push、ハードリセット、npm publish）は明示的に禁止されており、チームメンバーが誤って実行するリスクを排除しています。
+    </div>
+    <div class="diagram-container">
+      <div class="mermaid">
+graph LR
+  subgraph ALLOW["✅ 許可リスト"]
+    A1["npm run lint / format / test"]
+    A2["npm run dev / build"]
+    A3["npx tsc"]
+    A4["git status / log / diff / add / commit"]
+    A5["git branch / checkout / switch"]
+    A6["git push / pull"]
+    A7["gh pr / gh issue"]
+  end
+
+  subgraph DENY["🚫 拒否リスト"]
+    D1["rm -rf /"]
+    D2["git push --force"]
+    D3["git reset --hard"]
+    D4["npm publish"]
+  end
+
+  subgraph HOOKS["⚡ 自動処理 (Hooks)"]
+    H1["PostToolUse<br/>Edit/Write → Prettier自動フォーマット"]
+    H2["Notification<br/>入力待ち → デスクトップ通知"]
+    H3["Stop<br/>セッション終了 → 未完了タスク確認"]
+  end
+
+  REQ["Claude Code<br/>コマンド実行要求"] --> CHECK{"settings.json<br/>権限チェック"}
+  CHECK -->|"許可"| ALLOW
+  CHECK -->|"拒否"| DENY
+  CHECK -->|"イベント"| HOOKS
+
+  style ALLOW fill:#1a2a1a,stroke:#2a6b2a,color:#e2e4ea
+  style DENY fill:#2a1a1a,stroke:#6b2a2a,color:#e2e4ea
+  style HOOKS fill:#2a2a1a,stroke:#6b6b2a,color:#e2e4ea
+      </div>
+    </div>
+
+    <!-- Summary Table -->
+    <h3>6. 機能比較サマリー</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>機能</th>
+          <th>ファイル</th>
+          <th>読み込みタイミング</th>
+          <th>Git管理</th>
+          <th>用途</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>CLAUDE.md</strong></td>
+          <td><code>CLAUDE.md</code></td>
+          <td>毎セッション自動</td>
+          <td>✅ 共有</td>
+          <td>ビルドコマンド、コードスタイル、アーキテクチャ</td>
+        </tr>
+        <tr>
+          <td><strong>個人設定</strong></td>
+          <td><code>CLAUDE.local.md</code></td>
+          <td>毎セッション自動</td>
+          <td>❌ 個人</td>
+          <td>言語設定、個人の好み</td>
+        </tr>
+        <tr>
+          <td><strong>パス別ルール</strong></td>
+          <td><code>.claude/rules/*.md</code></td>
+          <td>対象ファイル操作時</td>
+          <td>✅ 共有</td>
+          <td>フロントエンド/バックエンド/テスト固有ルール</td>
+        </tr>
+        <tr>
+          <td><strong>権限・Hooks</strong></td>
+          <td><code>.claude/settings.json</code></td>
+          <td>毎セッション自動</td>
+          <td>✅ 共有</td>
+          <td>許可/拒否コマンド、自動処理</td>
+        </tr>
+        <tr>
+          <td><strong>スキル</strong></td>
+          <td><code>.claude/skills/*/SKILL.md</code></td>
+          <td>ユーザー起動 or Claude判断</td>
+          <td>✅ 共有</td>
+          <td>Issue修正、PRレビュー、コミット、API生成</td>
+        </tr>
+        <tr>
+          <td><strong>サブエージェント</strong></td>
+          <td><code>.claude/agents/*.md</code></td>
+          <td>委譲時に起動</td>
+          <td>✅ 共有</td>
+          <td>セキュリティレビュー、テスト生成</td>
+        </tr>
+        <tr>
+          <td><strong>VS Code設定</strong></td>
+          <td><code>.vscode/settings.json</code></td>
+          <td>VS Code起動時</td>
+          <td>✅ 共有</td>
+          <td>フォーマット、リント自動実行</td>
+        </tr>
+        <tr>
+          <td><strong>GitHubテンプレート</strong></td>
+          <td><code>.github/</code></td>
+          <td>PR/Issue作成時</td>
+          <td>✅ 共有</td>
+          <td>PRテンプレート、Issueテンプレート</td>
+        </tr>
+      </tbody>
+    </table>
+
   </section>
 
   <!-- ===== Team Development Guide ===== -->
@@ -1583,6 +1911,60 @@ document.addEventListener('click', function(e) {
     sidebar.classList.remove('open');
   }
 });
+
+// ===== Mermaid Initialization =====
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'dark',
+  themeVariables: {
+    darkMode: true,
+    background: '#1a1d27',
+    primaryColor: '#2a3a4a',
+    primaryTextColor: '#e2e4ea',
+    primaryBorderColor: '#3a4a5a',
+    secondaryColor: '#2a2a3a',
+    tertiaryColor: '#1a2a1a',
+    lineColor: '#5a6a7a',
+    textColor: '#e2e4ea',
+    mainBkg: '#2a3a4a',
+    nodeBorder: '#4a5a6a',
+    clusterBkg: '#1a1d27',
+    clusterBorder: '#3a4a5a',
+    fontSize: '13px'
+  },
+  flowchart: {
+    htmlLabels: true,
+    curve: 'basis',
+    padding: 12,
+    nodeSpacing: 30,
+    rankSpacing: 40
+  }
+});
+
+// Render mermaid diagrams when architecture section becomes visible
+function renderMermaid() {
+  const diagrams = document.querySelectorAll('.mermaid:not([data-processed])');
+  diagrams.forEach(function(el, i) {
+    el.setAttribute('data-processed', 'true');
+    const id = 'mermaid-' + Date.now() + '-' + i;
+    try {
+      mermaid.render(id, el.textContent.trim()).then(function(result) {
+        el.innerHTML = result.svg;
+      });
+    } catch(e) {
+      console.warn('Mermaid render error:', e);
+    }
+  });
+}
+
+// Observe section visibility to trigger rendering
+var origNavigate = navigate;
+navigate = function(sectionId) {
+  origNavigate(sectionId);
+  if (sectionId === 'architecture') {
+    setTimeout(renderMermaid, 100);
+  }
+};
 
 // ===== Dynamic Project Dashboard =====
 const ORG_NAME = 'monogatari-it-dept';
