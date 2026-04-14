@@ -481,82 +481,26 @@ tr:hover td { background: rgba(255,255,255,0.02); }
     <p class="section-desc">Anthropic公式ベストプラクティスに基づくClaude Codeチーム開発環境の全設定ファイルとガイドです。</p>
 
     <!-- ===== Project Dashboard ===== -->
-    <h3>プロジェクト一覧</h3>
-    <table class="project-table" id="project-table">
+    <h3>プロジェクト一覧 <span id="project-refresh" style="font-size:12px;color:var(--text-muted);font-weight:400;margin-left:8px;cursor:pointer" onclick="loadProjects()" title="再読み込み">🔄 更新</span></h3>
+    <div id="project-loading" style="color:var(--text-muted);font-size:13px;padding:16px 0">GitHub APIからリポジトリ情報を取得中...</div>
+    <table class="project-table" id="project-table" style="display:none">
       <thead>
         <tr>
           <th style="width:22%">プロジェクト名</th>
           <th style="width:15%">オーナー</th>
           <th>説明</th>
-          <th style="width:12%">ステータス</th>
-          <th style="width:14%">リポジトリ</th>
+          <th style="width:10%">言語</th>
+          <th style="width:12%">最終更新</th>
+          <th style="width:12%">リポジトリ</th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-          <td><strong>顧客管理システム</strong></td>
-          <td>
-            <span class="owner-avatar">
-              <span class="initials" style="background:#7eb8da">椿</span>
-              椿 正玄
-            </span>
-          </td>
-          <td>顧客情報のCRUD、検索、CSV出力機能を備えた社内業務システム</td>
-          <td><span class="status-badge status-active">進行中</span></td>
-          <td><a class="repo-link" href="https://github.com/monogatari-it-dept/customer-management" target="_blank">customer-management</a></td>
-        </tr>
-        <tr>
-          <td><strong>在庫管理API</strong></td>
-          <td>
-            <span class="owner-avatar">
-              <span class="initials" style="background:#c678dd">堤</span>
-              堤 太郎
-            </span>
-          </td>
-          <td>倉庫の在庫データをリアルタイムで管理するRESTful API</td>
-          <td><span class="status-badge status-active">進行中</span></td>
-          <td><a class="repo-link" href="https://github.com/monogatari-it-dept/inventory-api" target="_blank">inventory-api</a></td>
-        </tr>
-        <tr>
-          <td><strong>社内ポータルサイト</strong></td>
-          <td>
-            <span class="owner-avatar">
-              <span class="initials" style="background:#e5c07b">佐</span>
-              佐藤 花子
-            </span>
-          </td>
-          <td>社内通知、スケジュール、ドキュメント共有を集約したポータル</td>
-          <td><span class="status-badge status-planning">計画中</span></td>
-          <td><a class="repo-link" href="https://github.com/monogatari-it-dept/internal-portal" target="_blank">internal-portal</a></td>
-        </tr>
-        <tr>
-          <td><strong>売上レポート自動化</strong></td>
-          <td>
-            <span class="owner-avatar">
-              <span class="initials" style="background:#7ec699">田</span>
-              田中 一郎
-            </span>
-          </td>
-          <td>月次売上データを自動集計し、PDF/Excelレポートを生成するバッチ処理</td>
-          <td><span class="status-badge status-review">レビュー中</span></td>
-          <td><a class="repo-link" href="https://github.com/monogatari-it-dept/sales-report" target="_blank">sales-report</a></td>
-        </tr>
-        <tr>
-          <td><strong>Claude Code環境テンプレート</strong></td>
-          <td>
-            <span class="owner-avatar">
-              <span class="initials" style="background:#7eb8da">椿</span>
-              椿 正玄
-            </span>
-          </td>
-          <td>チーム開発のためのClaude Code設定テンプレートとドキュメント</td>
-          <td><span class="status-badge status-done">完了</span></td>
-          <td><a class="repo-link" href="https://github.com/monogatari-it-dept/claude-code-setup" target="_blank">claude-code-setup</a></td>
-        </tr>
-      </tbody>
+      <tbody id="project-tbody"></tbody>
     </table>
-    <div class="edit-hint">
-      💡 このプロジェクト一覧はサンプルデータです。<code>docs/index.html</code> の <code>id="project-table"</code> 内のテーブル行を編集して、実際のプロジェクト情報に差し替えてください。
+    <div id="project-error" style="display:none" class="edit-hint">
+      ⚠️ GitHub APIからデータを取得できませんでした。<a href="https://github.com/orgs/monogatari-it-dept/repositories" target="_blank" style="color:var(--link)">GitHub</a>で直接確認してください。
+    </div>
+    <div class="edit-hint" style="margin-top:8px">
+      💡 この一覧はGitHub APIから<strong>自動取得</strong>されます。新しいリポジトリを組織に追加すると自動的に表示されます。リポジトリの <code>Description</code> を設定すると説明欄に反映されます。
     </div>
 
     <h3>ガイドドキュメント</h3>
@@ -1639,6 +1583,117 @@ document.addEventListener('click', function(e) {
     sidebar.classList.remove('open');
   }
 });
+
+// ===== Dynamic Project Dashboard =====
+const ORG_NAME = 'monogatari-it-dept';
+const AVATAR_COLORS = ['#7eb8da','#c678dd','#e5c07b','#7ec699','#e06c75','#d4a574','#56b6c2'];
+
+function hashColor(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = ((h << 5) - h + str.charCodeAt(i)) | 0;
+  return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
+}
+
+function timeAgo(dateStr) {
+  const now = new Date();
+  const d = new Date(dateStr);
+  const diff = Math.floor((now - d) / 1000);
+  if (diff < 60) return 'たった今';
+  if (diff < 3600) return Math.floor(diff / 60) + '分前';
+  if (diff < 86400) return Math.floor(diff / 3600) + '時間前';
+  if (diff < 2592000) return Math.floor(diff / 86400) + '日前';
+  if (diff < 31536000) return Math.floor(diff / 2592000) + 'ヶ月前';
+  return Math.floor(diff / 31536000) + '年前';
+}
+
+function langBadge(lang) {
+  if (!lang) return '<span style="color:var(--text-muted);font-size:12px">—</span>';
+  const colors = {
+    'TypeScript': '#3178c6', 'JavaScript': '#f1e05a', 'Python': '#3572A5',
+    'HTML': '#e34c26', 'CSS': '#563d7c', 'Go': '#00ADD8', 'Rust': '#dea584',
+    'Java': '#b07219', 'Shell': '#89e051', 'Ruby': '#701516'
+  };
+  const c = colors[lang] || '#8b8fa3';
+  return '<span style="display:inline-flex;align-items:center;gap:5px;font-size:12.5px">' +
+    '<span style="width:8px;height:8px;border-radius:50%;background:' + c + ';display:inline-block"></span>' +
+    lang + '</span>';
+}
+
+async function loadProjects() {
+  const loading = document.getElementById('project-loading');
+  const table = document.getElementById('project-table');
+  const tbody = document.getElementById('project-tbody');
+  const error = document.getElementById('project-error');
+
+  loading.style.display = 'block';
+  table.style.display = 'none';
+  error.style.display = 'none';
+
+  try {
+    const res = await fetch(
+      'https://api.github.com/orgs/' + ORG_NAME + '/repos?sort=updated&per_page=30&type=all',
+      { headers: { 'Accept': 'application/vnd.github.v3+json' } }
+    );
+
+    if (!res.ok) throw new Error('API ' + res.status);
+
+    const repos = await res.json();
+
+    // Also fetch org members for avatar display
+    let members = {};
+    try {
+      const mRes = await fetch(
+        'https://api.github.com/orgs/' + ORG_NAME + '/members?per_page=100',
+        { headers: { 'Accept': 'application/vnd.github.v3+json' } }
+      );
+      if (mRes.ok) {
+        const mData = await mRes.json();
+        mData.forEach(function(m) { members[m.login] = m; });
+      }
+    } catch(e) { /* members lookup is optional */ }
+
+    tbody.innerHTML = '';
+
+    if (repos.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted)">リポジトリが見つかりませんでした</td></tr>';
+    } else {
+      repos.forEach(function(repo) {
+        var ownerLogin = repo.owner ? repo.owner.login : ORG_NAME;
+        var ownerAvatar = repo.owner && repo.owner.avatar_url
+          ? '<img src="' + repo.owner.avatar_url + '&s=26" width="26" height="26" style="border-radius:50%;vertical-align:middle" />'
+          : '<span class="initials" style="background:' + hashColor(ownerLogin) + '">' + ownerLogin.charAt(0).toUpperCase() + '</span>';
+
+        var desc = repo.description || '<span style="color:var(--text-muted);font-style:italic">説明なし</span>';
+
+        var row = '<tr>' +
+          '<td><strong>' + repo.name + '</strong>' +
+            (repo.private ? ' <span class="tag tag-red" style="font-size:10px">Private</span>' : '') +
+            (repo.archived ? ' <span class="tag tag-yellow" style="font-size:10px">Archived</span>' : '') +
+            (repo.fork ? ' <span class="tag tag-purple" style="font-size:10px">Fork</span>' : '') +
+          '</td>' +
+          '<td><span class="owner-avatar">' + ownerAvatar + ' ' + ownerLogin + '</span></td>' +
+          '<td>' + desc + '</td>' +
+          '<td>' + langBadge(repo.language) + '</td>' +
+          '<td style="font-size:12px;color:var(--text-muted)">' + timeAgo(repo.updated_at) + '</td>' +
+          '<td><a class="repo-link" href="' + repo.html_url + '" target="_blank">' + repo.name + '</a></td>' +
+        '</tr>';
+
+        tbody.innerHTML += row;
+      });
+    }
+
+    loading.style.display = 'none';
+    table.style.display = 'table';
+
+  } catch(e) {
+    loading.style.display = 'none';
+    error.style.display = 'block';
+    console.error('Project load error:', e);
+  }
+}
+
+// Load projects on page load
+loadProjects();
 </script>
 
 </body>
