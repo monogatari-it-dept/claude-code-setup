@@ -328,6 +328,84 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 .severity-warning { color: var(--yellow); }
 .severity-info { color: var(--link); }
 
+/* Project dashboard */
+.project-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0 20px;
+  font-size: 13.5px;
+}
+
+.project-table th {
+  background: var(--bg-code);
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  color: var(--accent);
+}
+
+.project-table td {
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+}
+
+.project-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+.status-badge {
+  display: inline-block;
+  font-size: 11px;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.status-active { background: rgba(126,198,153,0.15); color: var(--green); }
+.status-planning { background: rgba(126,184,218,0.15); color: var(--link); }
+.status-review { background: rgba(229,192,123,0.15); color: var(--yellow); }
+.status-done { background: rgba(139,143,163,0.15); color: var(--text-muted); }
+
+.owner-avatar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.owner-avatar .initials {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--bg);
+  flex-shrink: 0;
+}
+
+.repo-link {
+  color: var(--link);
+  text-decoration: none;
+  font-size: 12.5px;
+}
+
+.repo-link:hover { text-decoration: underline; }
+
+.edit-hint {
+  background: rgba(126,184,218,0.08);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-top: 12px;
+}
+
+.edit-hint code {
+  color: var(--accent);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .sidebar { transform: translateX(-100%); }
@@ -350,7 +428,7 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 
   <div class="nav-section">
     <div class="nav-section-title">概要</div>
-    <a class="nav-link active" data-section="overview">ドキュメント一覧</a>
+    <a class="nav-link active" data-section="overview">ホーム</a>
   </div>
 
   <div class="nav-section">
@@ -401,6 +479,85 @@ tr:hover td { background: rgba(255,255,255,0.02); }
   <section class="doc-section active" id="overview">
     <h2>ドキュメント一覧</h2>
     <p class="section-desc">Anthropic公式ベストプラクティスに基づくClaude Codeチーム開発環境の全設定ファイルとガイドです。</p>
+
+    <!-- ===== Project Dashboard ===== -->
+    <h3>プロジェクト一覧</h3>
+    <table class="project-table" id="project-table">
+      <thead>
+        <tr>
+          <th style="width:22%">プロジェクト名</th>
+          <th style="width:15%">オーナー</th>
+          <th>説明</th>
+          <th style="width:12%">ステータス</th>
+          <th style="width:14%">リポジトリ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>顧客管理システム</strong></td>
+          <td>
+            <span class="owner-avatar">
+              <span class="initials" style="background:#7eb8da">椿</span>
+              椿 正玄
+            </span>
+          </td>
+          <td>顧客情報のCRUD、検索、CSV出力機能を備えた社内業務システム</td>
+          <td><span class="status-badge status-active">進行中</span></td>
+          <td><a class="repo-link" href="https://github.com/monogatari-it-dept/customer-management" target="_blank">customer-management</a></td>
+        </tr>
+        <tr>
+          <td><strong>在庫管理API</strong></td>
+          <td>
+            <span class="owner-avatar">
+              <span class="initials" style="background:#c678dd">堤</span>
+              堤 太郎
+            </span>
+          </td>
+          <td>倉庫の在庫データをリアルタイムで管理するRESTful API</td>
+          <td><span class="status-badge status-active">進行中</span></td>
+          <td><a class="repo-link" href="https://github.com/monogatari-it-dept/inventory-api" target="_blank">inventory-api</a></td>
+        </tr>
+        <tr>
+          <td><strong>社内ポータルサイト</strong></td>
+          <td>
+            <span class="owner-avatar">
+              <span class="initials" style="background:#e5c07b">佐</span>
+              佐藤 花子
+            </span>
+          </td>
+          <td>社内通知、スケジュール、ドキュメント共有を集約したポータル</td>
+          <td><span class="status-badge status-planning">計画中</span></td>
+          <td><a class="repo-link" href="https://github.com/monogatari-it-dept/internal-portal" target="_blank">internal-portal</a></td>
+        </tr>
+        <tr>
+          <td><strong>売上レポート自動化</strong></td>
+          <td>
+            <span class="owner-avatar">
+              <span class="initials" style="background:#7ec699">田</span>
+              田中 一郎
+            </span>
+          </td>
+          <td>月次売上データを自動集計し、PDF/Excelレポートを生成するバッチ処理</td>
+          <td><span class="status-badge status-review">レビュー中</span></td>
+          <td><a class="repo-link" href="https://github.com/monogatari-it-dept/sales-report" target="_blank">sales-report</a></td>
+        </tr>
+        <tr>
+          <td><strong>Claude Code環境テンプレート</strong></td>
+          <td>
+            <span class="owner-avatar">
+              <span class="initials" style="background:#7eb8da">椿</span>
+              椿 正玄
+            </span>
+          </td>
+          <td>チーム開発のためのClaude Code設定テンプレートとドキュメント</td>
+          <td><span class="status-badge status-done">完了</span></td>
+          <td><a class="repo-link" href="https://github.com/monogatari-it-dept/claude-code-setup" target="_blank">claude-code-setup</a></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="edit-hint">
+      💡 このプロジェクト一覧はサンプルデータです。<code>docs/index.html</code> の <code>id="project-table"</code> 内のテーブル行を編集して、実際のプロジェクト情報に差し替えてください。
+    </div>
 
     <h3>ガイドドキュメント</h3>
     <div class="overview-grid">
