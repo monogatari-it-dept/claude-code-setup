@@ -542,6 +542,11 @@ tr:hover td { background: rgba(255,255,255,0.02); }
   </div>
 
   <div class="nav-section">
+    <div class="nav-section-title">プロジェクト</div>
+    <a class="nav-link" data-section="projects">プロジェクト一覧</a>
+  </div>
+
+  <div class="nav-section">
     <div class="nav-section-title">ガイド</div>
     <a class="nav-link" data-section="architecture">アーキテクチャ概要</a>
     <a class="nav-link" data-section="team-guide">チーム開発ガイドライン</a>
@@ -591,27 +596,12 @@ tr:hover td { background: rgba(255,255,255,0.02); }
     <h2>ドキュメント一覧</h2>
     <p class="section-desc">Anthropic公式ベストプラクティスに基づくClaude Codeチーム開発環境の全設定ファイルとガイドです。</p>
 
-    <!-- ===== Project Dashboard ===== -->
-    <h3>プロジェクト一覧 <span id="project-refresh" style="font-size:12px;color:var(--text-muted);font-weight:400;margin-left:8px;cursor:pointer" onclick="loadProjects()" title="再読み込み">🔄 更新</span></h3>
-    <div id="project-loading" style="color:var(--text-muted);font-size:13px;padding:16px 0">GitHub APIからリポジトリ情報を取得中...</div>
-    <table class="project-table" id="project-table" style="display:none">
-      <thead>
-        <tr>
-          <th style="width:22%">プロジェクト名</th>
-          <th style="width:15%">オーナー</th>
-          <th>説明</th>
-          <th style="width:10%">言語</th>
-          <th style="width:12%">最終更新</th>
-          <th style="width:12%">リポジトリ</th>
-        </tr>
-      </thead>
-      <tbody id="project-tbody"></tbody>
-    </table>
-    <div id="project-error" style="display:none" class="edit-hint">
-      ⚠️ GitHub APIからデータを取得できませんでした。<a href="https://github.com/orgs/monogatari-it-dept/repositories" target="_blank" style="color:var(--link)">GitHub</a>で直接確認してください。
-    </div>
-    <div class="edit-hint" style="margin-top:8px">
-      💡 この一覧はGitHub APIから<strong>自動取得</strong>されます。新しいリポジトリを組織に追加すると自動的に表示されます。リポジトリの <code>Description</code> を設定すると説明欄に反映されます。
+    <h3>プロジェクト</h3>
+    <div class="overview-grid">
+      <div class="overview-card" onclick="navigate('projects')">
+        <h4>📋 プロジェクト一覧</h4>
+        <p>組織内のリポジトリ一覧をGitHub APIから動的に取得。プロジェクト名・オーナー・言語・最終更新を確認</p>
+      </div>
     </div>
 
     <h3>ガイドドキュメント</h3>
@@ -743,6 +733,36 @@ tr:hover td { background: rgba(255,255,255,0.02); }
     ├── TEAM_DEVELOPMENT_GUIDE.md     # チーム開発ガイドライン
     ├── SETUP_GUIDE.md                # セットアップガイド
     └── VSCODE_SETUP_GUIDE.md         # VS Code + Claude Code ガイド</code></pre>
+    </div>
+  </section>
+
+  <!-- ===== Projects ===== -->
+  <section class="doc-section" id="projects">
+    <h2>プロジェクト一覧</h2>
+    <p class="section-desc">monogatari-it-dept 組織のリポジトリをGitHub APIから動的に取得して表示します</p>
+
+    <div id="project-loading" style="color:var(--text-muted);font-size:13px;padding:16px 0">GitHub APIからリポジトリ情報を取得中...</div>
+    <table class="project-table" id="project-table" style="display:none">
+      <thead>
+        <tr>
+          <th style="width:22%">プロジェクト名</th>
+          <th style="width:15%">オーナー</th>
+          <th>説明</th>
+          <th style="width:10%">言語</th>
+          <th style="width:12%">最終更新</th>
+          <th style="width:12%">リポジトリ</th>
+        </tr>
+      </thead>
+      <tbody id="project-tbody"></tbody>
+    </table>
+    <div id="project-error" style="display:none" class="edit-hint">
+      ⚠️ GitHub APIからデータを取得できませんでした。<a href="https://github.com/orgs/monogatari-it-dept/repositories" target="_blank" style="color:var(--link)">GitHub</a>で直接確認してください。
+    </div>
+    <div class="edit-hint" style="margin-top:16px">
+      💡 この一覧はGitHub APIから<strong>自動取得</strong>されます。新しいリポジトリを組織に追加すると自動的に表示されます。リポジトリの <code>Description</code> を設定すると説明欄に反映されます。
+    </div>
+    <div style="margin-top:12px">
+      <button onclick="loadProjects()" style="background:var(--accent);color:#1a1a2e;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;">🔄 再読み込み</button>
     </div>
   </section>
 
