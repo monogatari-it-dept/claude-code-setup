@@ -770,6 +770,9 @@ tr:hover td { background: rgba(255,255,255,0.02); }
         <tr><td>Git設定</td><td><code>git config user.name && git config user.email</code></td><td>名前とメールが表示される</td></tr>
       </tbody>
     </table>
+    <div class="edit-hint">
+      💡 <code>code</code> や <code>gh</code> コマンドが見つからない場合は、PATHの設定が必要です。VS Code は起動後に <code>Cmd+Shift+P</code> → 「Shell Command: Install 'code' command in PATH」を実行してください。Homebrew 未導入の場合は <code>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code> でインストール後、<code>eval "$(/opt/homebrew/bin/brew shellenv zsh)"</code> を実行してから <code>brew install gh</code> を行ってください。
+    </div>
 
     <!-- Step 1 -->
     <h3>1. リポジトリを作成する</h3>
@@ -885,6 +888,10 @@ xdg-open docs/index.html</code></pre>
     <p>または手動で実行:</p>
 <pre><code>git add -A
 git commit -m "feat: Hello Worldページを作成"
+
+# デフォルトブランチが master の場合は main にリネーム
+git branch -m master main
+
 git push -u origin main</code></pre>
 
     <!-- Step 6 -->
@@ -893,8 +900,15 @@ git push -u origin main</code></pre>
 <pre><code># GitHub Pages を有効化（/docs ディレクトリから配信）
 gh api repos/monogatari-it-dept/hello-world/pages \
   -X POST \
-  -f source.branch=main \
-  -f source.path=/docs</code></pre>
+  --input - &lt;&lt;'EOF'
+{
+  "build_type": "legacy",
+  "source": {
+    "branch": "main",
+    "path": "/docs"
+  }
+}
+EOF</code></pre>
     <p>1〜2分待つと、以下の URL でページが公開されます:</p>
 <pre><code>https://monogatari-it-dept.github.io/hello-world/</code></pre>
     <div class="edit-hint">
