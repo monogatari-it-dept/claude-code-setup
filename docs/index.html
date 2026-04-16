@@ -1587,6 +1587,27 @@ chore:    ビルド・設定変更</code></pre>
     <h2>GitHub セットアップ <span class="badge">docs/SETUP_GUIDE.md</span></h2>
     <p class="section-desc">GitHub CLIのインストールからリポジトリ作成、チームメンバーの初期設定まで</p>
 
+    <h3>なぜ GitHub か</h3>
+    <p>GitHubはコード管理だけでなく、Claude Codeチーム開発の中核インフラとして機能する。Issues・Pull Requests・GitHub Pagesを組み合わせることで、タスク管理からドキュメント公開までを一つのプラットフォームに集約できる。</p>
+    <ul>
+      <li>GitHub CLI（<code>gh</code>）でリポジトリ作成・PR・Issue操作をターミナルから完結できる</li>
+      <li>Claude Codeのスキル（<code>/fix-issue</code>、<code>/review-pr</code>）がGitHub APIと直接連携する</li>
+      <li>PRテンプレート・Issueテンプレートでチーム全体のワークフローを標準化できる</li>
+      <li>GitHub Pagesでドキュメントサイトをリポジトリのコミットだけでデプロイできる</li>
+      <li>Organization（組織アカウント）でメンバー管理・権限制御を一元化できる</li>
+    </ul>
+
+    <h3>前提条件</h3>
+    <table>
+      <thead><tr><th>項目</th><th>要件</th></tr></thead>
+      <tbody>
+        <tr><td>GitHubアカウント</td><td>Free以上（Pages公開にはPublicリポジトリが必要）</td></tr>
+        <tr><td>OS</td><td>macOS / Windows / Linux</td></tr>
+        <tr><td>Homebrew（macOS）</td><td><code>gh</code> インストールに使用。未導入の場合はStep 1で案内</td></tr>
+        <tr><td>ネットワーク</td><td>インターネット接続が必要</td></tr>
+      </tbody>
+    </table>
+
     <h3>1. GitHub CLIのインストール</h3>
 
     <h4>macOS（Homebrew）</h4>
