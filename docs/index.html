@@ -847,8 +847,9 @@ CLAUDE.local.md
 EOF</code></pre>
 
     <!-- Step 3 -->
-    <h3>3. Claude Code で Hello World ページを作成する</h3>
-    <p>ここからが Claude Code の出番です。VS Code で Claude パネルを開き（Sparkアイコン ✱）、以下のように依頼します:</p>
+    <h3>3. Hello World ページを作成する</h3>
+    <p><strong>方法A: Claude Code に依頼する（推奨）</strong></p>
+    <p>VS Code で Claude パネルを開き（Sparkアイコン ✱）、以下のように依頼します:</p>
     <div class="explain-box" style="border-left-color: var(--accent);">
       <strong>Claude への指示例:</strong><br>
       <code style="display:block; margin-top:8px; padding:12px; background:var(--bg-code); border-radius:6px; white-space:pre-wrap;">docs/index.html に Hello World ウェブページを作って。
@@ -859,10 +860,51 @@ EOF</code></pre>
 - CSS/JSはHTMLファイル内にインライン記述
 - レスポンシブ対応</code>
     </div>
-    <p>Claude が <code>docs/index.html</code> を生成します。内容を確認して問題なければ次に進みます。</p>
     <div class="edit-hint">
       💡 生成されたコードに修正を加えたい場合は、続けて「時計のフォントをもう少し大きくして」「背景にグラデーションを追加して」のように自然言語で指示できます。
     </div>
+
+    <p style="margin-top:20px;"><strong>方法B: 手動で作成する</strong></p>
+    <p>ターミナルで以下を実行すると、動作するサンプルページが作成されます:</p>
+<pre><code>cat &lt;&lt;'EOF' &gt; docs/index.html
+&lt;!DOCTYPE html&gt;
+&lt;html lang="ja"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+  &lt;title&gt;Hello World&lt;/title&gt;
+  &lt;style&gt;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #1a1a2e;
+      color: #e0e0e0;
+      font-family: -apple-system, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      flex-direction: column;
+      gap: 24px;
+    }
+    h1 { color: #d4a574; font-size: 2.5rem; }
+    .clock { font-size: 1.5rem; color: #7eb8da; font-variant-numeric: tabular-nums; }
+    .footer { font-size: 0.85rem; color: #888; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Hello World from monogatari-it-dept!&lt;/h1&gt;
+  &lt;div class="clock" id="clock"&gt;&lt;/div&gt;
+  &lt;div class="footer"&gt;Built with Claude Code&lt;/div&gt;
+  &lt;script&gt;
+    function tick() {
+      document.getElementById('clock').textContent = new Date().toLocaleString('ja-JP');
+    }
+    tick();
+    setInterval(tick, 1000);
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+EOF</code></pre>
 
     <!-- Step 4 -->
     <h3>4. ローカルで動作確認する</h3>
@@ -879,20 +921,28 @@ xdg-open docs/index.html</code></pre>
 
     <!-- Step 5 -->
     <h3>5. コミットしてプッシュする</h3>
-    <p>Claude Code のスキルを使うか、手動でコミットします。</p>
+    <p><strong>方法A: Claude Code に依頼する</strong></p>
     <div class="explain-box" style="border-left-color: var(--accent);">
       <strong>Claude への指示例:</strong><br>
       <code style="display:block; margin-top:8px; padding:12px; background:var(--bg-code); border-radius:6px; white-space:pre-wrap;">変更をすべてコミットしてプッシュして。
 コミットメッセージ: 「feat: Hello Worldページを作成」</code>
     </div>
-    <p>または手動で実行:</p>
-<pre><code>git add -A
+    <p style="margin-top:16px;"><strong>方法B: 手動で実行する</strong></p>
+<pre><code># すべてのファイルをステージング
+git add -A
+
+# コミット
 git commit -m "feat: Hello Worldページを作成"
 
 # デフォルトブランチが master の場合は main にリネーム
+# （GitHub Pages は main ブランチを参照するため必須）
 git branch -m master main
 
+# プッシュ（初回は -u でトラッキング設定）
 git push -u origin main</code></pre>
+    <div class="edit-hint">
+      💡 <code>git branch -m master main</code> は初回のみ必要です。<code>gh repo create</code> がデフォルトで master ブランチを作成するため、main にリネームします。2回目以降のプッシュは <code>git push</code> だけでOKです。
+    </div>
 
     <!-- Step 6 -->
     <h3>6. GitHub Pages を有効化する</h3>
@@ -912,8 +962,17 @@ EOF</code></pre>
     <p>1〜2分待つと、以下の URL でページが公開されます:</p>
 <pre><code>https://monogatari-it-dept.github.io/hello-world/</code></pre>
     <div class="edit-hint">
-      💡 初回のデプロイには数分かかることがあります。ステータスは <code>gh api repos/monogatari-it-dept/hello-world/pages</code> で確認できます。
+      💡 初回のデプロイには数分かかることがあります。404が表示される場合は少し待ってからリロードしてください。
     </div>
+    <p style="margin-top:12px;">デプロイ状況の確認コマンド:</p>
+<pre><code># Pages のステータス確認
+gh api repos/monogatari-it-dept/hello-world/pages --jq '.status'
+
+# 最新のビルド状況を確認
+gh api repos/monogatari-it-dept/hello-world/pages/builds --jq '.[0].status'
+
+# docs/index.html がリポジトリに存在するか確認
+gh api repos/monogatari-it-dept/hello-world/contents/docs/index.html --jq '.name'</code></pre>
 
     <!-- Step 7 -->
     <h3>7. プロジェクト一覧で確認する</h3>
