@@ -542,6 +542,11 @@ tr:hover td { background: rgba(255,255,255,0.02); }
   </div>
 
   <div class="nav-section">
+    <div class="nav-section-title">チュートリアル</div>
+    <a class="nav-link" data-section="tutorial">はじめてのプロジェクト</a>
+  </div>
+
+  <div class="nav-section">
     <div class="nav-section-title">プロジェクト</div>
     <a class="nav-link" data-section="projects">プロジェクト一覧</a>
   </div>
@@ -595,6 +600,14 @@ tr:hover td { background: rgba(255,255,255,0.02); }
   <section class="doc-section active" id="overview">
     <h2>ドキュメント一覧</h2>
     <p class="section-desc">Anthropic公式ベストプラクティスに基づくClaude Codeチーム開発環境の全設定ファイルとガイドです。</p>
+
+    <h3>チュートリアル</h3>
+    <div class="overview-grid">
+      <div class="overview-card" onclick="navigate('tutorial')" style="border-color:var(--accent);">
+        <h4>🚀 はじめてのプロジェクト</h4>
+        <p>Hello Worldページを作成→GitHub Pages公開→プロジェクト一覧で確認。約15分で一連の開発フローを体験</p>
+      </div>
+    </div>
 
     <h3>プロジェクト</h3>
     <div class="overview-grid">
@@ -734,6 +747,219 @@ tr:hover td { background: rgba(255,255,255,0.02); }
     ├── SETUP_GUIDE.md                # セットアップガイド
     └── VSCODE_SETUP_GUIDE.md         # VS Code + Claude Code ガイド</code></pre>
     </div>
+  </section>
+
+  <!-- ===== Tutorial ===== -->
+  <section class="doc-section" id="tutorial">
+    <h2>はじめてのプロジェクト</h2>
+    <p class="section-desc">環境セットアップ後に、Claude Codeを使って簡単なウェブページを作成し、GitHub Pagesで公開するまでの一連の流れを体験します。所要時間: 約15分</p>
+
+    <div class="explain-box">
+      このチュートリアルでは、新しいリポジトリの作成からClaude Code設定、Hello Worldページの実装、GitHub Pagesでの公開、プロジェクト一覧での確認までを一気通貫で行います。セットアップガイドが完了していることが前提です。
+    </div>
+
+    <!-- Step 0 -->
+    <h3>0. 前提条件の確認</h3>
+    <p>以下がすべて完了していることを確認してください:</p>
+    <table>
+      <thead><tr><th>項目</th><th>確認コマンド</th><th>期待結果</th></tr></thead>
+      <tbody>
+        <tr><td>Claude Code CLI</td><td><code>claude --version</code></td><td>バージョン番号が表示される</td></tr>
+        <tr><td>GitHub CLI</td><td><code>gh auth status</code></td><td>Logged in と表示される</td></tr>
+        <tr><td>VS Code + 拡張機能</td><td><code>code --list-extensions | grep anthropic</code></td><td><code>anthropic.claude-code</code></td></tr>
+        <tr><td>Git設定</td><td><code>git config user.name && git config user.email</code></td><td>名前とメールが表示される</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Step 1 -->
+    <h3>1. リポジトリを作成する</h3>
+    <p>GitHub CLI を使って、組織内に新しいリポジトリを作成します。</p>
+<pre><code># リポジトリ名は自由に変更してください
+gh repo create monogatari-it-dept/hello-world \
+  --public \
+  --description "My first Claude Code project" \
+  --clone
+
+cd hello-world</code></pre>
+    <div class="edit-hint">
+      💡 <code>--public</code> は GitHub Pages（Freeプラン）で公開するために必要です。
+    </div>
+
+    <!-- Step 2 -->
+    <h3>2. Claude Code の設定ファイルを配置する</h3>
+    <p>チームテンプレートから設定ファイルをコピーするか、手動で作成します。</p>
+<pre><code># ディレクトリ構造を作成
+mkdir -p .claude/rules .claude/skills .vscode docs
+
+# CLAUDE.md を作成（プロジェクトの基本ルール）
+cat &lt;&lt;'EOF' &gt; CLAUDE.md
+# Hello World Project
+
+## Build &amp; Run
+- Open docs/index.html in browser
+
+## Code Style
+- HTML5 semantic tags
+- CSS: mobile-first, no frameworks
+- JavaScript: vanilla ES6+, no dependencies
+
+## Architecture
+- Single page application in docs/
+- GitHub Pages deployment from /docs on main branch
+EOF
+
+# チーム共通の settings.json をコピー
+cat &lt;&lt;'EOF' &gt; .claude/settings.json
+{
+  "permissions": {
+    "allow": [
+      "git status", "git log", "git diff",
+      "git add", "git commit", "git push", "git pull"
+    ],
+    "deny": [
+      "git push --force",
+      "git reset --hard",
+      "rm -rf /"
+    ]
+  }
+}
+EOF
+
+# VS Code 設定をコピー
+cat &lt;&lt;'EOF' &gt; .vscode/settings.json
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2
+}
+EOF
+
+# .gitignore
+cat &lt;&lt;'EOF' &gt; .gitignore
+node_modules/
+.env
+CLAUDE.local.md
+.claude/settings.local.json
+.DS_Store
+EOF</code></pre>
+
+    <!-- Step 3 -->
+    <h3>3. Claude Code で Hello World ページを作成する</h3>
+    <p>ここからが Claude Code の出番です。VS Code で Claude パネルを開き（Sparkアイコン ✱）、以下のように依頼します:</p>
+    <div class="explain-box" style="border-left-color: var(--accent);">
+      <strong>Claude への指示例:</strong><br>
+      <code style="display:block; margin-top:8px; padding:12px; background:var(--bg-code); border-radius:6px; white-space:pre-wrap;">docs/index.html に Hello World ウェブページを作って。
+要件:
+- ダークテーマ
+- ページ中央に「Hello World from monogatari-it-dept!」と表示
+- 現在日時をリアルタイムで表示する時計機能
+- CSS/JSはHTMLファイル内にインライン記述
+- レスポンシブ対応</code>
+    </div>
+    <p>Claude が <code>docs/index.html</code> を生成します。内容を確認して問題なければ次に進みます。</p>
+    <div class="edit-hint">
+      💡 生成されたコードに修正を加えたい場合は、続けて「時計のフォントをもう少し大きくして」「背景にグラデーションを追加して」のように自然言語で指示できます。
+    </div>
+
+    <!-- Step 4 -->
+    <h3>4. ローカルで動作確認する</h3>
+    <p>ブラウザで直接ファイルを開いて確認します:</p>
+<pre><code># macOS
+open docs/index.html
+
+# Windows
+start docs/index.html
+
+# Linux
+xdg-open docs/index.html</code></pre>
+    <p>ページ中央に「Hello World」と時計が表示されれば成功です。</p>
+
+    <!-- Step 5 -->
+    <h3>5. コミットしてプッシュする</h3>
+    <p>Claude Code のスキルを使うか、手動でコミットします。</p>
+    <div class="explain-box" style="border-left-color: var(--accent);">
+      <strong>Claude への指示例:</strong><br>
+      <code style="display:block; margin-top:8px; padding:12px; background:var(--bg-code); border-radius:6px; white-space:pre-wrap;">変更をすべてコミットしてプッシュして。
+コミットメッセージ: 「feat: Hello Worldページを作成」</code>
+    </div>
+    <p>または手動で実行:</p>
+<pre><code>git add -A
+git commit -m "feat: Hello Worldページを作成"
+git push -u origin main</code></pre>
+
+    <!-- Step 6 -->
+    <h3>6. GitHub Pages を有効化する</h3>
+    <p>GitHub CLI を使って Pages を設定します:</p>
+<pre><code># GitHub Pages を有効化（/docs ディレクトリから配信）
+gh api repos/monogatari-it-dept/hello-world/pages \
+  -X POST \
+  -f source.branch=main \
+  -f source.path=/docs</code></pre>
+    <p>1〜2分待つと、以下の URL でページが公開されます:</p>
+<pre><code>https://monogatari-it-dept.github.io/hello-world/</code></pre>
+    <div class="edit-hint">
+      💡 初回のデプロイには数分かかることがあります。ステータスは <code>gh api repos/monogatari-it-dept/hello-world/pages</code> で確認できます。
+    </div>
+
+    <!-- Step 7 -->
+    <h3>7. プロジェクト一覧で確認する</h3>
+    <p>このドキュメントサイトのサイドバーから <a href="#" onclick="navigate('projects'); return false;" style="color:var(--link);">プロジェクト一覧</a> を開いてください。GitHub APIから自動取得されるため、作成した <strong>hello-world</strong> リポジトリが一覧に表示されているはずです。</p>
+    <div class="diagram-container">
+      <div class="flow-diagram">
+        <div class="flow-row" style="gap:8px; flex-wrap:wrap; justify-content:center;">
+          <div class="flow-node green" style="font-weight:600;">1. リポジトリ作成</div>
+          <div class="flow-arrow side">→</div>
+          <div class="flow-node blue" style="font-weight:600;">2. Claude Code 設定</div>
+          <div class="flow-arrow side">→</div>
+          <div class="flow-node yellow" style="font-weight:600;">3. ページ作成</div>
+          <div class="flow-arrow side">→</div>
+          <div class="flow-node highlight" style="font-weight:600;">4. 動作確認</div>
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-row" style="gap:8px; flex-wrap:wrap; justify-content:center;">
+          <div class="flow-node highlight" style="font-weight:600;">5. コミット &amp; プッシュ</div>
+          <div class="flow-arrow side">→</div>
+          <div class="flow-node purple" style="font-weight:600;">6. Pages 公開</div>
+          <div class="flow-arrow side">→</div>
+          <div class="flow-node green" style="font-weight:600;">7. 一覧で確認 ✓</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- What's Next -->
+    <h3>8. 次のステップ</h3>
+    <p>Hello Worldが完了したら、以下に挑戦してみましょう:</p>
+    <table>
+      <thead><tr><th>挑戦</th><th>Claude への指示例</th><th>学べること</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>機能追加</strong></td>
+          <td>「ページにカウンターボタンを追加して。クリック回数を表示する」</td>
+          <td>既存コードへの機能追加フロー</td>
+        </tr>
+        <tr>
+          <td><strong>ブランチ運用</strong></td>
+          <td>「feature/counter ブランチを作成してそこで作業して」</td>
+          <td>ブランチ戦略、PR作成</td>
+        </tr>
+        <tr>
+          <td><strong>コードレビュー</strong></td>
+          <td>「/review-pr 1」</td>
+          <td>Writer/Reviewer パターン</td>
+        </tr>
+        <tr>
+          <td><strong>テスト追加</strong></td>
+          <td>「時計機能のユニットテストを書いて」</td>
+          <td>テスト駆動開発</td>
+        </tr>
+        <tr>
+          <td><strong>Plan Mode</strong></td>
+          <td>モードを Plan に切り替えて「TODOアプリに拡張する計画を立てて」</td>
+          <td>計画→実装のワークフロー</td>
+        </tr>
+      </tbody>
+    </table>
+
   </section>
 
   <!-- ===== Projects ===== -->
