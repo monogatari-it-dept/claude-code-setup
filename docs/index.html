@@ -553,60 +553,44 @@ tr:hover td { background: rgba(255,255,255,0.02); }
   </div>
 
   <div class="nav-section">
-    <div class="nav-section-title">概要</div>
+    <div class="nav-section-title">STEP 1 — 全体を知る</div>
     <a class="nav-link active" data-section="overview">ホーム</a>
-  </div>
-
-  <div class="nav-section">
-    <div class="nav-section-title">チュートリアル</div>
-    <a class="nav-link" data-section="tutorial">はじめてのプロジェクト</a>
-  </div>
-
-  <div class="nav-section">
-    <div class="nav-section-title">プロジェクト</div>
-    <a class="nav-link" data-section="projects">プロジェクト一覧</a>
-  </div>
-
-  <div class="nav-section">
-    <div class="nav-section-title">ガイド</div>
     <a class="nav-link" data-section="architecture">アーキテクチャ概要</a>
     <a class="nav-link" data-section="team-guide">チーム開発ガイドライン</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">STEP 2 — 環境をつくる</div>
     <a class="nav-link" data-section="setup-guide">セットアップガイド</a>
     <a class="nav-link" data-section="vscode-guide">VS Code + Claude Code</a>
   </div>
 
   <div class="nav-section">
-    <div class="nav-section-title">設定ファイル</div>
+    <div class="nav-section-title">STEP 3 — 試してみる</div>
+    <a class="nav-link" data-section="tutorial">はじめてのプロジェクト</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">STEP 4 — 確認する</div>
+    <a class="nav-link" data-section="projects">プロジェクト一覧</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">リファレンス</div>
     <a class="nav-link" data-section="claude-md">CLAUDE.md</a>
     <a class="nav-link" data-section="settings-json">settings.json</a>
-  </div>
-
-  <div class="nav-section">
-    <div class="nav-section-title">パス別ルール</div>
-    <a class="nav-link" data-section="rule-frontend">フロントエンド</a>
-    <a class="nav-link" data-section="rule-backend">バックエンド</a>
-    <a class="nav-link" data-section="rule-testing">テスト</a>
-  </div>
-
-  <div class="nav-section">
-    <div class="nav-section-title">スキル</div>
-    <a class="nav-link" data-section="skill-fix-issue">fix-issue</a>
-    <a class="nav-link" data-section="skill-review-pr">review-pr</a>
-    <a class="nav-link" data-section="skill-commit">commit</a>
-    <a class="nav-link" data-section="skill-create-api">create-api</a>
-  </div>
-
-  <div class="nav-section">
-    <div class="nav-section-title">サブエージェント</div>
-    <a class="nav-link" data-section="agent-security">security-reviewer</a>
-    <a class="nav-link" data-section="agent-test">test-writer</a>
-  </div>
-
-  <div class="nav-section">
-    <div class="nav-section-title">GitHub テンプレート</div>
-    <a class="nav-link" data-section="pr-template">PR テンプレート</a>
-    <a class="nav-link" data-section="issue-bug">バグ報告</a>
-    <a class="nav-link" data-section="issue-feature">機能リクエスト</a>
+    <a class="nav-link" data-section="rule-frontend">ルール: フロントエンド</a>
+    <a class="nav-link" data-section="rule-backend">ルール: バックエンド</a>
+    <a class="nav-link" data-section="rule-testing">ルール: テスト</a>
+    <a class="nav-link" data-section="skill-fix-issue">スキル: fix-issue</a>
+    <a class="nav-link" data-section="skill-review-pr">スキル: review-pr</a>
+    <a class="nav-link" data-section="skill-commit">スキル: commit</a>
+    <a class="nav-link" data-section="skill-create-api">スキル: create-api</a>
+    <a class="nav-link" data-section="agent-security">エージェント: security-reviewer</a>
+    <a class="nav-link" data-section="agent-test">エージェント: test-writer</a>
+    <a class="nav-link" data-section="pr-template">テンプレート: PR</a>
+    <a class="nav-link" data-section="issue-bug">テンプレート: バグ報告</a>
+    <a class="nav-link" data-section="issue-feature">テンプレート: 機能リクエスト</a>
   </div>
 </nav>
 
@@ -614,26 +598,26 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 
   <!-- ===== Overview ===== -->
   <section class="doc-section active" id="overview">
-    <h2>ドキュメント一覧</h2>
-    <p class="section-desc">Anthropic公式ベストプラクティスに基づくClaude Codeチーム開発環境の全設定ファイルとガイドです。</p>
+    <h2>monogatari Claude Code Team</h2>
+    <p class="section-desc">Anthropic公式ベストプラクティスに基づくClaude Codeチーム開発環境です。以下の4ステップで開発を始められます。</p>
 
-    <h3>チュートリアル</h3>
-    <div class="overview-grid">
-      <div class="overview-card" onclick="navigate('tutorial')" style="border-color:var(--accent);">
-        <h4>🚀 はじめてのプロジェクト</h4>
-        <p>Hello Worldページを作成→GitHub Pages公開→プロジェクト一覧で確認。約15分で一連の開発フローを体験</p>
+    <!-- Flow Diagram -->
+    <div class="diagram-container" style="margin:20px 0;">
+      <div class="flow-diagram">
+        <div class="flow-row" style="gap:8px; flex-wrap:wrap; justify-content:center;">
+          <div class="flow-node green" style="font-weight:600; cursor:pointer;" onclick="navigate('architecture')">STEP 1<small>全体を知る</small></div>
+          <div class="flow-arrow side">→</div>
+          <div class="flow-node blue" style="font-weight:600; cursor:pointer;" onclick="navigate('setup-guide')">STEP 2<small>環境をつくる</small></div>
+          <div class="flow-arrow side">→</div>
+          <div class="flow-node yellow" style="font-weight:600; cursor:pointer;" onclick="navigate('tutorial')">STEP 3<small>試してみる</small></div>
+          <div class="flow-arrow side">→</div>
+          <div class="flow-node purple" style="font-weight:600; cursor:pointer;" onclick="navigate('projects')">STEP 4<small>確認する</small></div>
+        </div>
       </div>
     </div>
 
-    <h3>プロジェクト</h3>
-    <div class="overview-grid">
-      <div class="overview-card" onclick="navigate('projects')">
-        <h4>📋 プロジェクト一覧</h4>
-        <p>組織内のリポジトリ一覧をGitHub APIから動的に取得。プロジェクト名・オーナー・言語・最終更新を確認</p>
-      </div>
-    </div>
-
-    <h3>ガイドドキュメント</h3>
+    <!-- STEP 1 -->
+    <h3>STEP 1 — 全体を知る</h3>
     <div class="overview-grid">
       <div class="overview-card" onclick="navigate('architecture')">
         <h4>🏗️ アーキテクチャ概要</h4>
@@ -643,6 +627,11 @@ tr:hover td { background: rgba(255,255,255,0.02); }
         <h4>📘 チーム開発ガイドライン</h4>
         <p>基本原則、コンテキスト管理、ファイル構成、開発フロー、アンチパターンをカバーする包括ガイド</p>
       </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <h3>STEP 2 — 環境をつくる</h3>
+    <div class="overview-grid">
       <div class="overview-card" onclick="navigate('setup-guide')">
         <h4>🔧 セットアップガイド</h4>
         <p>GitHub CLIのインストールから、リポジトリ作成、チームメンバーの初期設定まで</p>
@@ -653,7 +642,29 @@ tr:hover td { background: rgba(255,255,255,0.02); }
       </div>
     </div>
 
-    <h3>設定ファイル</h3>
+    <!-- STEP 3 -->
+    <h3>STEP 3 — 試してみる</h3>
+    <div class="overview-grid">
+      <div class="overview-card" onclick="navigate('tutorial')" style="border-color:var(--accent);">
+        <h4>🚀 はじめてのプロジェクト</h4>
+        <p>Hello Worldページを作成→GitHub Pages公開→プロジェクト一覧で確認。約15分で一連の開発フローを体験</p>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <h3>STEP 4 — 確認する</h3>
+    <div class="overview-grid">
+      <div class="overview-card" onclick="navigate('projects')">
+        <h4>📋 プロジェクト一覧</h4>
+        <p>組織内のリポジトリ一覧をGitHub APIから動的に取得。作成者・言語・最終更新を確認</p>
+      </div>
+    </div>
+
+    <!-- リファレンス -->
+    <h3 style="margin-top:32px;">リファレンス</h3>
+    <p style="color:var(--text-muted); font-size:13px; margin-bottom:12px;">開発に慣れてきたら、各設定ファイル・スキル・テンプレートの詳細を参照してください。</p>
+
+    <h4 style="font-size:14px; color:var(--text-muted); margin:16px 0 8px;">設定ファイル</h4>
     <div class="overview-grid">
       <div class="overview-card" onclick="navigate('claude-md')">
         <h4>📄 CLAUDE.md</h4>
@@ -665,7 +676,7 @@ tr:hover td { background: rgba(255,255,255,0.02); }
       </div>
     </div>
 
-    <h3>パス別ルール (.claude/rules/)</h3>
+    <h4 style="font-size:14px; color:var(--text-muted); margin:16px 0 8px;">パス別ルール (.claude/rules/)</h4>
     <div class="overview-grid">
       <div class="overview-card" onclick="navigate('rule-frontend')">
         <h4>🎨 フロントエンド</h4>
@@ -681,7 +692,7 @@ tr:hover td { background: rgba(255,255,255,0.02); }
       </div>
     </div>
 
-    <h3>スキル (.claude/skills/)</h3>
+    <h4 style="font-size:14px; color:var(--text-muted); margin:16px 0 8px;">スキル (.claude/skills/)</h4>
     <div class="overview-grid">
       <div class="overview-card" onclick="navigate('skill-fix-issue')">
         <h4>🔨 fix-issue</h4>
@@ -701,7 +712,7 @@ tr:hover td { background: rgba(255,255,255,0.02); }
       </div>
     </div>
 
-    <h3>サブエージェント (.claude/agents/)</h3>
+    <h4 style="font-size:14px; color:var(--text-muted); margin:16px 0 8px;">サブエージェント (.claude/agents/)</h4>
     <div class="overview-grid">
       <div class="overview-card" onclick="navigate('agent-security')">
         <h4>🛡️ security-reviewer</h4>
@@ -713,7 +724,7 @@ tr:hover td { background: rgba(255,255,255,0.02); }
       </div>
     </div>
 
-    <h3>GitHub テンプレート (.github/)</h3>
+    <h4 style="font-size:14px; color:var(--text-muted); margin:16px 0 8px;">GitHub テンプレート (.github/)</h4>
     <div class="overview-grid">
       <div class="overview-card" onclick="navigate('pr-template')">
         <h4>📋 PRテンプレート</h4>
