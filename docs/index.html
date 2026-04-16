@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Claude Code チーム開発環境 - ドキュメント</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.1/mermaid.min.js"></script>
 <style>
 :root {
   --bg: #0f1117;
@@ -338,7 +337,7 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 .severity-warning { color: var(--yellow); }
 .severity-info { color: var(--link); }
 
-/* Mermaid diagrams */
+/* CSS Diagrams */
 .diagram-container {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -348,24 +347,85 @@ tr:hover td { background: rgba(255,255,255,0.02); }
   overflow-x: auto;
 }
 
-.diagram-container .mermaid {
+.flow-diagram {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding: 8px 0;
 }
 
-.diagram-container .mermaid svg {
-  max-width: 100%;
-  height: auto;
-}
-
-.diagram-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--accent);
-  margin-bottom: 16px;
+.flow-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.flow-node {
+  background: #2a3a4a;
+  border: 1.5px solid #4a6a8a;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 12.5px;
+  color: var(--text);
+  text-align: center;
+  min-width: 100px;
+  position: relative;
+}
+
+.flow-node.highlight { border-color: var(--accent); background: rgba(212,165,116,0.12); }
+.flow-node.green { border-color: var(--green); background: rgba(126,198,153,0.1); }
+.flow-node.red { border-color: var(--red); background: rgba(224,108,117,0.1); }
+.flow-node.blue { border-color: var(--link); background: rgba(126,184,218,0.1); }
+.flow-node.purple { border-color: var(--purple); background: rgba(198,120,221,0.1); }
+.flow-node.yellow { border-color: var(--yellow); background: rgba(229,192,123,0.1); }
+.flow-node.dim { border-color: var(--border); background: var(--bg-code); }
+.flow-node small { display: block; color: var(--text-muted); font-size: 11px; margin-top: 3px; }
+
+.flow-arrow {
+  color: var(--text-muted);
+  font-size: 18px;
+  line-height: 1;
+  padding: 4px 0;
+}
+
+.flow-arrow.side { padding: 0 4px; }
+
+.flow-group {
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px 10px;
+  margin: 4px 0;
+  position: relative;
+}
+
+.flow-group-title {
+  position: absolute;
+  top: -10px;
+  left: 14px;
+  background: var(--bg-card);
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.flow-group.green-border { border-color: rgba(126,198,153,0.4); }
+.flow-group.blue-border { border-color: rgba(126,184,218,0.4); }
+.flow-group.purple-border { border-color: rgba(198,120,221,0.4); }
+.flow-group.yellow-border { border-color: rgba(229,192,123,0.4); }
+.flow-group.red-border { border-color: rgba(224,108,117,0.4); }
+
+.flow-group .flow-row { gap: 8px; }
+
+.grid-diagram {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
 }
 
 .explain-box {
@@ -697,40 +757,50 @@ tr:hover td { background: rgba(255,255,255,0.02); }
       開発者はVS Code + Claude Code拡張で作業し、GitHubリポジトリを中心にチーム開発を行います。CLAUDE.mdやSettings等の設定はリポジトリにコミットされ、全メンバーで共有されます。GitHub Pagesでドキュメントを公開し、GitHub IssuesとPRでタスクと変更を管理します。
     </div>
     <div class="diagram-container">
-      <pre class="mermaid">
-graph TB
-  subgraph DEV [Developer Environment]
-    VSC[VS Code + Claude Code]
-    CLI[Claude Code CLI]
-    LOCAL[Local Repository]
-  end
-  subgraph GH [GitHub Organization]
-    REPO[Repository]
-    ISSUES[Issues]
-    PR[Pull Requests]
-    PAGES[GitHub Pages]
-  end
-  subgraph CFG [Claude Code Config]
-    CMD[CLAUDE.md]
-    SETTINGS[settings.json]
-    RULES[rules/]
-    SKILLS[skills/]
-    AGENTS[agents/]
-  end
-  subgraph AI [Anthropic API]
-    CLAUDE[Claude AI]
-  end
-  VSC --- CLAUDE
-  CLI --- CLAUDE
-  VSC --- LOCAL
-  CLI --- LOCAL
-  LOCAL ---|push/pull| REPO
-  REPO --- ISSUES
-  REPO --- PR
-  REPO ---|/docs| PAGES
-  REPO --- CFG
-  CLAUDE -.->|load config| CFG
-      </pre>
+      <div class="flow-diagram">
+        <div class="flow-row" style="gap:24px; align-items:flex-start; flex-wrap:wrap; justify-content:center;">
+          <!-- Developer Environment -->
+          <div class="flow-group blue-border" style="min-width:200px;">
+            <span class="flow-group-title">Developer Environment</span>
+            <div class="flow-row" style="flex-direction:column; gap:6px;">
+              <div class="flow-node blue">VS Code + Claude Code</div>
+              <div class="flow-node blue">Claude Code CLI</div>
+              <div class="flow-node blue">Local Repository</div>
+            </div>
+          </div>
+          <!-- Anthropic API -->
+          <div class="flow-group purple-border" style="min-width:150px;">
+            <span class="flow-group-title">Anthropic API</span>
+            <div class="flow-node purple">Claude AI</div>
+          </div>
+        </div>
+        <div class="flow-arrow">&#8595; push / pull &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &#8593; load config</div>
+        <div class="flow-row" style="gap:24px; align-items:flex-start; flex-wrap:wrap; justify-content:center;">
+          <!-- GitHub Organization -->
+          <div class="flow-group green-border" style="min-width:200px;">
+            <span class="flow-group-title">GitHub Organization</span>
+            <div class="flow-row" style="flex-direction:column; gap:6px;">
+              <div class="flow-node green">Repository</div>
+              <div class="flow-row" style="gap:6px;">
+                <div class="flow-node green">Issues</div>
+                <div class="flow-node green">PRs</div>
+                <div class="flow-node green">Pages</div>
+              </div>
+            </div>
+          </div>
+          <!-- Claude Code Config -->
+          <div class="flow-group yellow-border" style="min-width:200px;">
+            <span class="flow-group-title">Claude Code Config</span>
+            <div class="flow-row" style="flex-wrap:wrap; gap:6px; justify-content:center;">
+              <div class="flow-node yellow">CLAUDE.md</div>
+              <div class="flow-node yellow">settings.json</div>
+              <div class="flow-node yellow">rules/</div>
+              <div class="flow-node yellow">skills/</div>
+              <div class="flow-node yellow">agents/</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Diagram 2: Claude Code Extension Points -->
@@ -739,27 +809,37 @@ graph TB
       Claude Codeは5つの拡張ポイントで構成されています。CLAUDE.mdは毎セッション自動読み込みされる基本ルール、Rulesはファイルパスに応じて自動適用される条件付きルール、Skillsは手動またはClaude判断で起動するワークフロー、Hooksはツール実行やイベントに連動する自動処理、Agentsは隔離コンテキストで動く専門エージェントです。
     </div>
     <div class="diagram-container">
-      <pre class="mermaid">
-graph LR
-  subgraph AUTO [Auto Load]
-    A[CLAUDE.md]
-    B[.claude/rules/]
-  end
-  subgraph TRIGGER [Event Driven]
-    C[Hooks - settings.json]
-  end
-  subgraph MANUAL [Manual Invoke]
-    D[.claude/skills/]
-  end
-  subgraph DELEGATE [Delegated]
-    E[.claude/agents/]
-  end
-  S1([Session Start]) --> A
-  S1 --> B
-  S2([Tool Event]) --> C
-  S3([User Command]) --> D
-  S4([Claude / User]) --> E
-      </pre>
+      <div class="flow-diagram">
+        <div class="flow-row" style="gap:16px; flex-wrap:wrap; justify-content:center; align-items:flex-start;">
+          <!-- Auto Load -->
+          <div class="flow-group green-border" style="min-width:160px;">
+            <span class="flow-group-title">Auto Load</span>
+            <div class="flow-row" style="flex-direction:column; gap:6px;">
+              <div class="flow-node green">CLAUDE.md</div>
+              <div class="flow-node green">.claude/rules/</div>
+            </div>
+            <div style="text-align:center; margin-top:8px; font-size:11px; color:var(--text-muted);">&#8593; Session Start</div>
+          </div>
+          <!-- Event Driven -->
+          <div class="flow-group blue-border" style="min-width:160px;">
+            <span class="flow-group-title">Event Driven</span>
+            <div class="flow-node blue">Hooks<small>settings.json</small></div>
+            <div style="text-align:center; margin-top:8px; font-size:11px; color:var(--text-muted);">&#8593; Tool Event</div>
+          </div>
+          <!-- Manual Invoke -->
+          <div class="flow-group yellow-border" style="min-width:160px;">
+            <span class="flow-group-title">Manual Invoke</span>
+            <div class="flow-node yellow">.claude/skills/</div>
+            <div style="text-align:center; margin-top:8px; font-size:11px; color:var(--text-muted);">&#8593; User Command</div>
+          </div>
+          <!-- Delegated -->
+          <div class="flow-group purple-border" style="min-width:160px;">
+            <span class="flow-group-title">Delegated</span>
+            <div class="flow-node purple">.claude/agents/</div>
+            <div style="text-align:center; margin-top:8px; font-size:11px; color:var(--text-muted);">&#8593; Claude / User</div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Diagram 3: Development Workflow -->
@@ -768,22 +848,45 @@ graph LR
       機能開発はIssue起票から始まり、ブランチ作成→実装→テスト→PR作成→レビュー→マージの流れで進行します。各ステップでClaude Codeのスキルやエージェントが支援します。Writer/Reviewerパターンで品質を担保します。
     </div>
     <div class="diagram-container">
-      <pre class="mermaid">
-graph TD
-  I[Issue] -->|/fix-issue| B[Branch]
-  B --> P[Plan Mode]
-  P --> D[Implement]
-  D --> T[Test / Lint]
-  T -->|fail| D
-  T -->|pass| C[Commit]
-  C --> PR[Pull Request]
-  PR --> R[Code Review]
-  R -->|fix needed| D
-  R -->|approved| M[Merge to main]
-  M --> DEPLOY[Deploy]
-  SEC([security-reviewer]) -.-> PR
-  TW([test-writer]) -.-> T
-      </pre>
+      <div class="flow-diagram">
+        <div class="flow-node highlight" style="font-weight:600;">Issue</div>
+        <div class="flow-arrow">&#8595; <span style="font-size:11px;">/fix-issue</span></div>
+        <div class="flow-node blue">Branch</div>
+        <div class="flow-arrow">&#8595;</div>
+        <div class="flow-node blue">Plan Mode</div>
+        <div class="flow-arrow">&#8595;</div>
+        <div class="flow-row" style="gap:16px;">
+          <div style="display:flex; flex-direction:column; align-items:center;">
+            <div class="flow-node green">Implement</div>
+            <div class="flow-arrow">&#8595;</div>
+            <div class="flow-node green">Test / Lint</div>
+            <div style="display:flex; gap:16px; margin-top:4px;">
+              <span style="font-size:11px; color:var(--red);">&#8593; fail</span>
+              <span style="font-size:11px; color:var(--green);">&#8595; pass</span>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+            <div class="flow-node purple" style="min-width:auto; font-size:11px;">test-writer<small>Agent</small></div>
+            <span style="font-size:11px; color:var(--text-muted);">&#8592; support</span>
+          </div>
+        </div>
+        <div class="flow-arrow">&#8595;</div>
+        <div class="flow-node highlight">Commit</div>
+        <div class="flow-arrow">&#8595;</div>
+        <div class="flow-row" style="gap:16px;">
+          <div class="flow-node yellow" style="font-weight:600;">Pull Request</div>
+          <div class="flow-node purple" style="min-width:auto; font-size:11px;">security-reviewer<small>Agent</small></div>
+        </div>
+        <div class="flow-arrow">&#8595;</div>
+        <div class="flow-node yellow">Code Review</div>
+        <div style="display:flex; gap:16px; margin:4px 0;">
+          <span style="font-size:11px; color:var(--red);">&#8593; fix needed</span>
+          <span style="font-size:11px; color:var(--green);">&#8595; approved</span>
+        </div>
+        <div class="flow-node green" style="font-weight:600;">Merge to main</div>
+        <div class="flow-arrow">&#8595;</div>
+        <div class="flow-node green" style="font-weight:600;">Deploy</div>
+      </div>
     </div>
 
     <!-- Diagram 4: File Structure -->
@@ -792,33 +895,40 @@ graph TD
       Git管理されるファイル（チーム共有）と、.gitignoreで除外される個人設定ファイルを明確に分離しています。これにより、チーム全体で統一されたルールを維持しつつ、各メンバーが自分好みの設定を追加できます。
     </div>
     <div class="diagram-container">
-      <pre class="mermaid">
-graph TB
-  subgraph GIT [Git Managed - Team Shared]
-    CM[CLAUDE.md]
-    SET[settings.json]
-    R1[rules/frontend.md]
-    R2[rules/backend.md]
-    R3[rules/testing.md]
-    S1[skills/fix-issue]
-    S2[skills/review-pr]
-    S3[skills/commit]
-    S4[skills/create-api]
-    AG1[agents/security-reviewer]
-    AG2[agents/test-writer]
-    VS1[.vscode/settings.json]
-    GHT[.github/ templates]
-  end
-  subgraph LOCAL [.gitignore - Personal]
-    LCM[CLAUDE.local.md]
-    LSET[settings.local.json]
-    ENV[.env]
-  end
-  CM -->|auto load| LOAD[Claude Code]
-  LCM -->|auto load| LOAD
-  SET -->|permissions| LOAD
-  LSET -->|override| LOAD
-      </pre>
+      <div class="flow-diagram">
+        <div class="flow-row" style="gap:24px; align-items:flex-start; flex-wrap:wrap; justify-content:center;">
+          <!-- Git Managed -->
+          <div class="flow-group green-border" style="min-width:280px; max-width:420px;">
+            <span class="flow-group-title">Git Managed - Team Shared</span>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:6px;">
+              <div class="flow-node green">CLAUDE.md</div>
+              <div class="flow-node green">settings.json</div>
+              <div class="flow-node green">rules/frontend.md</div>
+              <div class="flow-node green">rules/backend.md</div>
+              <div class="flow-node green">rules/testing.md</div>
+              <div class="flow-node green">skills/fix-issue</div>
+              <div class="flow-node green">skills/review-pr</div>
+              <div class="flow-node green">skills/commit</div>
+              <div class="flow-node green">skills/create-api</div>
+              <div class="flow-node green">agents/security-reviewer</div>
+              <div class="flow-node green">agents/test-writer</div>
+              <div class="flow-node green">.vscode/settings.json</div>
+              <div class="flow-node green">.github/ templates</div>
+            </div>
+          </div>
+          <!-- Personal -->
+          <div class="flow-group red-border" style="min-width:180px;">
+            <span class="flow-group-title">.gitignore - Personal</span>
+            <div class="flow-row" style="flex-direction:column; gap:6px;">
+              <div class="flow-node red">CLAUDE.local.md</div>
+              <div class="flow-node red">settings.local.json</div>
+              <div class="flow-node red">.env</div>
+            </div>
+          </div>
+        </div>
+        <div class="flow-arrow">&#8595; auto load / permissions</div>
+        <div class="flow-node highlight" style="font-weight:600; font-size:14px;">Claude Code</div>
+      </div>
     </div>
 
     <!-- Diagram 5: Permission & Security -->
@@ -827,32 +937,45 @@ graph TB
       settings.jsonの許可リスト・拒否リストでClaude Codeが実行できるコマンドを制御します。危険な操作（force push、ハードリセット、npm publish）は明示的に禁止されており、チームメンバーが誤って実行するリスクを排除しています。
     </div>
     <div class="diagram-container">
-      <pre class="mermaid">
-graph LR
-  subgraph ALLOW [Allow List]
-    A1[npm run lint/format/test]
-    A2[npm run dev/build]
-    A3[npx tsc]
-    A4[git status/log/diff/add/commit]
-    A5[git branch/checkout/push/pull]
-    A6[gh pr / gh issue]
-  end
-  subgraph DENY [Deny List]
-    D1[rm -rf /]
-    D2[git push --force]
-    D3[git reset --hard]
-    D4[npm publish]
-  end
-  subgraph HOOKS [Hooks]
-    H1[PostToolUse - Auto Format]
-    H2[Notification - Desktop Alert]
-    H3[Stop - Task Completion Check]
-  end
-  REQ([Command Request]) --> CHECK{settings.json}
-  CHECK -->|allow| ALLOW
-  CHECK -->|deny| DENY
-  CHECK -->|event| HOOKS
-      </pre>
+      <div class="flow-diagram">
+        <div class="flow-node highlight" style="font-weight:600;">Command Request</div>
+        <div class="flow-arrow">&#8595;</div>
+        <div class="flow-node yellow" style="font-weight:600;">settings.json</div>
+        <div class="flow-arrow">&#8595; &#8595; &#8595;</div>
+        <div class="flow-row" style="gap:16px; align-items:flex-start; flex-wrap:wrap; justify-content:center;">
+          <!-- Allow List -->
+          <div class="flow-group green-border" style="min-width:200px;">
+            <span class="flow-group-title">Allow List</span>
+            <div class="flow-row" style="flex-direction:column; gap:5px;">
+              <div class="flow-node green" style="font-size:11.5px;">npm run lint / format / test</div>
+              <div class="flow-node green" style="font-size:11.5px;">npm run dev / build</div>
+              <div class="flow-node green" style="font-size:11.5px;">npx tsc</div>
+              <div class="flow-node green" style="font-size:11.5px;">git status / log / diff / add / commit</div>
+              <div class="flow-node green" style="font-size:11.5px;">git branch / checkout / push / pull</div>
+              <div class="flow-node green" style="font-size:11.5px;">gh pr / gh issue</div>
+            </div>
+          </div>
+          <!-- Deny List -->
+          <div class="flow-group red-border" style="min-width:180px;">
+            <span class="flow-group-title">Deny List</span>
+            <div class="flow-row" style="flex-direction:column; gap:5px;">
+              <div class="flow-node red" style="font-size:11.5px;">rm -rf /</div>
+              <div class="flow-node red" style="font-size:11.5px;">git push --force</div>
+              <div class="flow-node red" style="font-size:11.5px;">git reset --hard</div>
+              <div class="flow-node red" style="font-size:11.5px;">npm publish</div>
+            </div>
+          </div>
+          <!-- Hooks -->
+          <div class="flow-group blue-border" style="min-width:200px;">
+            <span class="flow-group-title">Hooks</span>
+            <div class="flow-row" style="flex-direction:column; gap:5px;">
+              <div class="flow-node blue" style="font-size:11.5px;">PostToolUse<small>Auto Format</small></div>
+              <div class="flow-node blue" style="font-size:11.5px;">Notification<small>Desktop Alert</small></div>
+              <div class="flow-node blue" style="font-size:11.5px;">Stop<small>Task Completion Check</small></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Summary Table -->
@@ -1882,34 +2005,7 @@ document.addEventListener('click', function(e) {
   }
 });
 
-// ===== Mermaid Initialization =====
-mermaid.initialize({
-  startOnLoad: true,
-  theme: 'dark',
-  themeVariables: {
-    darkMode: true,
-    background: '#1a1d27',
-    primaryColor: '#2a3a4a',
-    primaryTextColor: '#e2e4ea',
-    primaryBorderColor: '#3a4a5a',
-    secondaryColor: '#2a2a3a',
-    tertiaryColor: '#1a2a1a',
-    lineColor: '#5a6a7a',
-    textColor: '#e2e4ea',
-    mainBkg: '#2a3a4a',
-    nodeBorder: '#4a5a6a',
-    clusterBkg: '#1a1d27',
-    clusterBorder: '#3a4a5a',
-    fontSize: '13px'
-  },
-  flowchart: {
-    htmlLabels: true,
-    curve: 'basis',
-    padding: 12,
-    nodeSpacing: 30,
-    rankSpacing: 40
-  }
-});
+// (diagrams rendered as pure CSS/HTML - no external dependencies)
 
 // ===== Dynamic Project Dashboard =====
 const ORG_NAME = 'monogatari-it-dept';
