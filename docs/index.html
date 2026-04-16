@@ -793,15 +793,19 @@ tr:hover td { background: rgba(255,255,255,0.02); }
     <!-- Step 1 -->
     <h3>1. リポジトリを作成する</h3>
     <p>GitHub CLI を使って、組織内に新しいリポジトリを作成します。</p>
-<pre><code># リポジトリ名は自由に変更してください
+<pre><code># ホームディレクトリに移動（重要: 書き込み可能な場所で実行する）
+cd ~
+
+# リポジトリ名は自由に変更してください
 gh repo create monogatari-it-dept/hello-world \
   --public \
-  --description "My first Claude Code project" \
-  --clone
+  --description "My first Claude Code project"
 
+# リポジトリをクローンして移動
+git clone https://github.com/monogatari-it-dept/hello-world.git
 cd hello-world</code></pre>
     <div class="edit-hint">
-      💡 <code>--public</code> は GitHub Pages（Freeプラン）で公開するために必要です。
+      💡 <code>--public</code> は GitHub Pages（Freeプラン）で公開するために必要です。<code>--clone</code> オプションは現在のディレクトリに書き込めない場合に失敗するため、作成とクローンを別々に実行するのが確実です。
     </div>
 
     <!-- Step 2 -->
@@ -962,6 +966,9 @@ git push -u origin main</code></pre>
 
     <!-- Step 6 -->
     <h3>6. GitHub Pages を有効化する</h3>
+    <div class="explain-box" style="border-left-color: var(--red);">
+      <strong>⚠️ 必ず Step 5 のプッシュが完了してから実行してください。</strong> main ブランチがリモートに存在しないと「The main branch must exist」エラーになります。
+    </div>
     <p>GitHub CLI を使って Pages を設定します:</p>
 <pre><code># GitHub Pages を有効化（/docs ディレクトリから配信）
 gh api repos/monogatari-it-dept/hello-world/pages \
