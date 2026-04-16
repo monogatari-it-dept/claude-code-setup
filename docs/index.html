@@ -127,11 +127,20 @@ body {
 
 /* Sections */
 .doc-section {
-  display: none;
-  animation: fadeIn 0.25s ease;
+  position: absolute;
+  left: -9999px;
+  opacity: 0;
+  pointer-events: none;
+  width: 100%;
 }
 
-.doc-section.active { display: block; }
+.doc-section.active {
+  position: static;
+  left: auto;
+  opacity: 1;
+  pointer-events: auto;
+  animation: fadeIn 0.25s ease;
+}
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
@@ -688,7 +697,7 @@ tr:hover td { background: rgba(255,255,255,0.02); }
       開発者はVS Code + Claude Code拡張で作業し、GitHubリポジトリを中心にチーム開発を行います。CLAUDE.mdやSettings等の設定はリポジトリにコミットされ、全メンバーで共有されます。GitHub Pagesでドキュメントを公開し、GitHub IssuesとPRでタスクと変更を管理します。
     </div>
     <div class="diagram-container">
-      <div class="mermaid">
+      <pre class="mermaid">
 graph TB
   subgraph DEV [Developer Environment]
     VSC[VS Code + Claude Code]
@@ -721,7 +730,7 @@ graph TB
   REPO ---|/docs| PAGES
   REPO --- CFG
   CLAUDE -.->|load config| CFG
-      </div>
+      </pre>
     </div>
 
     <!-- Diagram 2: Claude Code Extension Points -->
@@ -730,7 +739,7 @@ graph TB
       Claude Codeは5つの拡張ポイントで構成されています。CLAUDE.mdは毎セッション自動読み込みされる基本ルール、Rulesはファイルパスに応じて自動適用される条件付きルール、Skillsは手動またはClaude判断で起動するワークフロー、Hooksはツール実行やイベントに連動する自動処理、Agentsは隔離コンテキストで動く専門エージェントです。
     </div>
     <div class="diagram-container">
-      <div class="mermaid">
+      <pre class="mermaid">
 graph LR
   subgraph AUTO [Auto Load]
     A[CLAUDE.md]
@@ -750,7 +759,7 @@ graph LR
   S2([Tool Event]) --> C
   S3([User Command]) --> D
   S4([Claude / User]) --> E
-      </div>
+      </pre>
     </div>
 
     <!-- Diagram 3: Development Workflow -->
@@ -759,7 +768,7 @@ graph LR
       機能開発はIssue起票から始まり、ブランチ作成→実装→テスト→PR作成→レビュー→マージの流れで進行します。各ステップでClaude Codeのスキルやエージェントが支援します。Writer/Reviewerパターンで品質を担保します。
     </div>
     <div class="diagram-container">
-      <div class="mermaid">
+      <pre class="mermaid">
 graph TD
   I[Issue] -->|/fix-issue| B[Branch]
   B --> P[Plan Mode]
@@ -774,7 +783,7 @@ graph TD
   M --> DEPLOY[Deploy]
   SEC([security-reviewer]) -.-> PR
   TW([test-writer]) -.-> T
-      </div>
+      </pre>
     </div>
 
     <!-- Diagram 4: File Structure -->
@@ -783,7 +792,7 @@ graph TD
       Git管理されるファイル（チーム共有）と、.gitignoreで除外される個人設定ファイルを明確に分離しています。これにより、チーム全体で統一されたルールを維持しつつ、各メンバーが自分好みの設定を追加できます。
     </div>
     <div class="diagram-container">
-      <div class="mermaid">
+      <pre class="mermaid">
 graph TB
   subgraph GIT [Git Managed - Team Shared]
     CM[CLAUDE.md]
@@ -809,7 +818,7 @@ graph TB
   LCM -->|auto load| LOAD
   SET -->|permissions| LOAD
   LSET -->|override| LOAD
-      </div>
+      </pre>
     </div>
 
     <!-- Diagram 5: Permission & Security -->
@@ -818,7 +827,7 @@ graph TB
       settings.jsonの許可リスト・拒否リストでClaude Codeが実行できるコマンドを制御します。危険な操作（force push、ハードリセット、npm publish）は明示的に禁止されており、チームメンバーが誤って実行するリスクを排除しています。
     </div>
     <div class="diagram-container">
-      <div class="mermaid">
+      <pre class="mermaid">
 graph LR
   subgraph ALLOW [Allow List]
     A1[npm run lint/format/test]
@@ -843,7 +852,7 @@ graph LR
   CHECK -->|allow| ALLOW
   CHECK -->|deny| DENY
   CHECK -->|event| HOOKS
-      </div>
+      </pre>
     </div>
 
     <!-- Summary Table -->
@@ -1875,7 +1884,7 @@ document.addEventListener('click', function(e) {
 
 // ===== Mermaid Initialization =====
 mermaid.initialize({
-  startOnLoad: false,
+  startOnLoad: true,
   theme: 'dark',
   themeVariables: {
     darkMode: true,
@@ -1901,44 +1910,6 @@ mermaid.initialize({
     rankSpacing: 40
   }
 });
-
-// Store raw mermaid source before any rendering attempt
-var mermaidSources = {};
-document.querySelectorAll('.mermaid').forEach(function(el, i) {
-  mermaidSources[i] = el.textContent.trim();
-  el.setAttribute('data-idx', i);
-});
-
-var mermaidRendered = false;
-
-async function renderMermaid() {
-  if (mermaidRendered) return;
-  var els = document.querySelectorAll('.mermaid');
-  for (var i = 0; i < els.length; i++) {
-    var el = els[i];
-    var idx = el.getAttribute('data-idx');
-    var src = mermaidSources[idx];
-    if (!src) continue;
-    try {
-      var id = 'mmd-' + idx + '-' + Date.now();
-      var result = await mermaid.render(id, src);
-      el.innerHTML = result.svg;
-    } catch(e) {
-      console.warn('Mermaid render error for diagram ' + idx + ':', e);
-      el.innerHTML = '<pre style="color:#e06c75;font-size:12px">図の描画に失敗しました</pre>';
-    }
-  }
-  mermaidRendered = true;
-}
-
-// Wrap navigate to trigger mermaid rendering
-var origNavigate = navigate;
-navigate = function(sectionId) {
-  origNavigate(sectionId);
-  if (sectionId === 'architecture') {
-    setTimeout(renderMermaid, 50);
-  }
-};
 
 // ===== Dynamic Project Dashboard =====
 const ORG_NAME = 'monogatari-it-dept';
