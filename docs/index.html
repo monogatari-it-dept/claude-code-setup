@@ -462,6 +462,22 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 
 .project-table tr:hover td { background: rgba(255,255,255,0.02); }
 
+.btn-action {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  background: transparent;
+  transition: all 0.15s;
+}
+.btn-hide { color: var(--text-muted); }
+.btn-hide:hover { background: rgba(229,192,123,0.15); color: var(--yellow); border-color: var(--yellow); }
+.btn-show { color: var(--green); border-color: var(--green); }
+.btn-show:hover { background: rgba(126,198,153,0.15); }
+.btn-delete { color: var(--red); border-color: transparent; }
+.btn-delete:hover { background: rgba(224,108,117,0.15); border-color: var(--red); }
+
 .status-badge {
   display: inline-block;
   font-size: 11px;
@@ -1041,15 +1057,23 @@ gh api repos/monogatari-it-dept/hello-world/contents/docs/index.html --jq '.name
     <p class="section-desc">monogatari-it-dept 組織のリポジトリをGitHub APIから動的に取得して表示します</p>
 
     <div id="project-loading" style="color:var(--text-muted);font-size:13px;padding:16px 0">GitHub APIからリポジトリ情報を取得中...</div>
+    <div style="margin-bottom:12px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+      <button onclick="loadProjects()" style="background:var(--accent);color:#1a1a2e;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;">🔄 再読み込み</button>
+      <label style="font-size:13px; color:var(--text-muted); cursor:pointer;">
+        <input type="checkbox" id="show-hidden-repos" onchange="loadProjects()" style="margin-right:4px;" />
+        非表示のプロジェクトも表示する
+      </label>
+    </div>
     <table class="project-table" id="project-table" style="display:none">
       <thead>
         <tr>
-          <th style="width:22%">プロジェクト名</th>
-          <th style="width:15%">オーナー</th>
+          <th style="width:18%">プロジェクト名</th>
+          <th style="width:12%">オーナー</th>
+          <th style="width:12%">作成者</th>
           <th>説明</th>
-          <th style="width:10%">言語</th>
-          <th style="width:12%">最終更新</th>
-          <th style="width:12%">リポジトリ</th>
+          <th style="width:8%">言語</th>
+          <th style="width:10%">最終更新</th>
+          <th style="width:14%">操作</th>
         </tr>
       </thead>
       <tbody id="project-tbody"></tbody>
@@ -1058,10 +1082,7 @@ gh api repos/monogatari-it-dept/hello-world/contents/docs/index.html --jq '.name
       ⚠️ GitHub APIからデータを取得できませんでした。<a href="https://github.com/orgs/monogatari-it-dept/repositories" target="_blank" style="color:var(--link)">GitHub</a>で直接確認してください。
     </div>
     <div class="edit-hint" style="margin-top:16px">
-      💡 この一覧はGitHub APIから<strong>自動取得</strong>されます。新しいリポジトリを組織に追加すると自動的に表示されます。リポジトリの <code>Description</code> を設定すると説明欄に反映されます。
-    </div>
-    <div style="margin-top:12px">
-      <button onclick="loadProjects()" style="background:var(--accent);color:#1a1a2e;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;">🔄 再読み込み</button>
+      💡 この一覧はGitHub APIから<strong>自動取得</strong>されます。リポジトリの <code>Description</code> を設定すると説明欄に反映されます。「非表示」にしたプロジェクトはブラウザに記憶されます。「削除」は GitHub 上からリポジトリを完全に削除します（復元不可）。
     </div>
   </section>
 
@@ -2361,11 +2382,36 @@ function langBadge(lang) {
     lang + '</span>';
 }
 
+// Hidden repos management (stored in localStorage)
+function getHiddenRepos() {
+  try { return JSON.parse(localStorage.getItem('hidden-repos') || '[]'); } catch(e) { return []; }
+}
+function setHiddenRepos(list) {
+  localStorage.setItem('hidden-repos', JSON.stringify(list));
+}
+function hideRepo(name) {
+  var hidden = getHiddenRepos();
+  if (hidden.indexOf(name) === -1) hidden.push(name);
+  setHiddenRepos(hidden);
+  loadProjects();
+}
+function unhideRepo(name) {
+  var hidden = getHiddenRepos();
+  setHiddenRepos(hidden.filter(function(n) { return n !== name; }));
+  loadProjects();
+}
+function deleteRepo(name) {
+  if (!confirm('⚠️ リポジトリ「' + name + '」をGitHubから完全に削除しますか？\n\nこの操作は復元できません。\nターミナルで以下を実行してください:\n\ngh repo delete ' + ORG_NAME + '/' + name + ' --yes')) return;
+  // Open GitHub settings page for deletion as fallback
+  window.open('https://github.com/' + ORG_NAME + '/' + name + '/settings#danger-zone', '_blank');
+}
+
 async function loadProjects() {
   const loading = document.getElementById('project-loading');
   const table = document.getElementById('project-table');
   const tbody = document.getElementById('project-tbody');
   const error = document.getElementById('project-error');
+  const showHidden = document.getElementById('show-hidden-repos');
 
   loading.style.display = 'block';
   table.style.display = 'none';
@@ -2380,48 +2426,85 @@ async function loadProjects() {
     if (!res.ok) throw new Error('API ' + res.status);
 
     const repos = await res.json();
+    const hiddenRepos = getHiddenRepos();
+    const showAll = showHidden && showHidden.checked;
 
-    // Also fetch org members for avatar display
-    let members = {};
-    try {
-      const mRes = await fetch(
-        'https://api.github.com/orgs/' + ORG_NAME + '/members?per_page=100',
+    // Fetch first commit author (creator) for each repo in parallel
+    const creatorPromises = repos.map(function(repo) {
+      return fetch(
+        'https://api.github.com/repos/' + ORG_NAME + '/' + repo.name + '/contributors?per_page=1&anon=false',
         { headers: { 'Accept': 'application/vnd.github.v3+json' } }
-      );
-      if (mRes.ok) {
-        const mData = await mRes.json();
-        mData.forEach(function(m) { members[m.login] = m; });
-      }
-    } catch(e) { /* members lookup is optional */ }
+      )
+      .then(function(r) { return r.ok ? r.json() : []; })
+      .then(function(contribs) {
+        return contribs.length > 0 ? contribs[0] : null;
+      })
+      .catch(function() { return null; });
+    });
+
+    const creators = await Promise.all(creatorPromises);
 
     tbody.innerHTML = '';
 
-    if (repos.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted)">リポジトリが見つかりませんでした</td></tr>';
-    } else {
-      repos.forEach(function(repo) {
-        var ownerLogin = repo.owner ? repo.owner.login : ORG_NAME;
-        var ownerAvatar = repo.owner && repo.owner.avatar_url
-          ? '<img src="' + repo.owner.avatar_url + '&s=26" width="26" height="26" style="border-radius:50%;vertical-align:middle" />'
-          : '<span class="initials" style="background:' + hashColor(ownerLogin) + '">' + ownerLogin.charAt(0).toUpperCase() + '</span>';
+    var visibleCount = 0;
+    repos.forEach(function(repo, idx) {
+      var isHidden = hiddenRepos.indexOf(repo.name) !== -1;
+      if (isHidden && !showAll) return;
 
-        var desc = repo.description || '<span style="color:var(--text-muted);font-style:italic">説明なし</span>';
+      visibleCount++;
+      var ownerLogin = repo.owner ? repo.owner.login : ORG_NAME;
+      var ownerAvatar = repo.owner && repo.owner.avatar_url
+        ? '<img src="' + repo.owner.avatar_url + '&s=24" width="24" height="24" style="border-radius:50%;vertical-align:middle" />'
+        : '<span class="initials" style="background:' + hashColor(ownerLogin) + '">' + ownerLogin.charAt(0).toUpperCase() + '</span>';
 
-        var row = '<tr>' +
-          '<td><strong>' + repo.name + '</strong>' +
-            (repo.private ? ' <span class="tag tag-red" style="font-size:10px">Private</span>' : '') +
-            (repo.archived ? ' <span class="tag tag-yellow" style="font-size:10px">Archived</span>' : '') +
-            (repo.fork ? ' <span class="tag tag-purple" style="font-size:10px">Fork</span>' : '') +
-          '</td>' +
-          '<td><span class="owner-avatar">' + ownerAvatar + ' ' + ownerLogin + '</span></td>' +
-          '<td>' + desc + '</td>' +
-          '<td>' + langBadge(repo.language) + '</td>' +
-          '<td style="font-size:12px;color:var(--text-muted)">' + timeAgo(repo.updated_at) + '</td>' +
-          '<td><a class="repo-link" href="' + repo.html_url + '" target="_blank">' + repo.name + '</a></td>' +
-        '</tr>';
+      // Creator info from contributors API
+      var creator = creators[idx];
+      var creatorHtml;
+      if (creator && creator.login) {
+        var cAvatar = creator.avatar_url
+          ? '<img src="' + creator.avatar_url + '&s=24" width="24" height="24" style="border-radius:50%;vertical-align:middle" />'
+          : '';
+        creatorHtml = '<a href="' + creator.html_url + '" target="_blank" style="color:var(--link);text-decoration:none;">' +
+          cAvatar + ' ' + creator.login + '</a>';
+      } else {
+        creatorHtml = '<span style="color:var(--text-muted);font-style:italic">—</span>';
+      }
 
-        tbody.innerHTML += row;
-      });
+      var desc = repo.description || '<span style="color:var(--text-muted);font-style:italic">説明なし</span>';
+
+      var rowStyle = isHidden ? ' style="opacity:0.45;"' : '';
+
+      var actions = '<div style="display:flex;gap:6px;flex-wrap:wrap;">' +
+        '<a class="repo-link" href="' + repo.html_url + '" target="_blank" style="font-size:11px;">GitHub</a>';
+
+      if (isHidden) {
+        actions += ' <button onclick="unhideRepo(\'' + repo.name + '\')" class="btn-action btn-show">表示</button>';
+      } else {
+        actions += ' <button onclick="hideRepo(\'' + repo.name + '\')" class="btn-action btn-hide">非表示</button>';
+      }
+      actions += ' <button onclick="deleteRepo(\'' + repo.name + '\')" class="btn-action btn-delete">削除</button>';
+      actions += '</div>';
+
+      var row = '<tr' + rowStyle + '>' +
+        '<td><strong>' + repo.name + '</strong>' +
+          (repo.private ? ' <span class="tag tag-red" style="font-size:10px">Private</span>' : '') +
+          (repo.archived ? ' <span class="tag tag-yellow" style="font-size:10px">Archived</span>' : '') +
+          (repo.fork ? ' <span class="tag tag-purple" style="font-size:10px">Fork</span>' : '') +
+          (isHidden ? ' <span style="font-size:10px;color:var(--text-muted);">(非表示)</span>' : '') +
+        '</td>' +
+        '<td><span class="owner-avatar">' + ownerAvatar + ' ' + ownerLogin + '</span></td>' +
+        '<td>' + creatorHtml + '</td>' +
+        '<td>' + desc + '</td>' +
+        '<td>' + langBadge(repo.language) + '</td>' +
+        '<td style="font-size:12px;color:var(--text-muted)">' + timeAgo(repo.updated_at) + '</td>' +
+        '<td>' + actions + '</td>' +
+      '</tr>';
+
+      tbody.innerHTML += row;
+    });
+
+    if (visibleCount === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted)">表示するリポジトリがありません</td></tr>';
     }
 
     loading.style.display = 'none';
