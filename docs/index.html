@@ -569,6 +569,7 @@ tr:hover td { background: rgba(255,255,255,0.02); }
   <div class="nav-section">
     <div class="nav-section-title">STEP 3 — 試してみる</div>
     <a class="nav-link" data-section="tutorial">はじめてのプロジェクト</a>
+    <a class="nav-link" data-section="tutorial-workflow">開発ワークフロー実践</a>
   </div>
 
   <div class="nav-section">
@@ -649,6 +650,10 @@ tr:hover td { background: rgba(255,255,255,0.02); }
       <div class="overview-card" onclick="navigate('tutorial')" style="border-color:var(--accent);">
         <h4>🚀 はじめてのプロジェクト</h4>
         <p>Hello Worldページを作成→GitHub Pages公開→プロジェクト一覧で確認。約15分で一連の開発フローを体験</p>
+      </div>
+      <div class="overview-card" onclick="navigate('tutorial-workflow')" style="border-color:var(--accent);">
+        <h4>🔄 開発ワークフロー実践</h4>
+        <p>Issue起票→ブランチ作成→Plan Mode→実装→テスト→PR→レビュー→マージ。チーム開発の実践フローを体験</p>
       </div>
     </div>
 
@@ -1066,6 +1071,276 @@ gh api repos/monogatari-it-dept/hello-world/contents/docs/index.html --jq '.name
         </tr>
       </tbody>
     </table>
+
+  </section>
+
+  <!-- ===== Tutorial: Dev Workflow ===== -->
+  <section class="doc-section" id="tutorial-workflow">
+    <h2>開発ワークフロー実践</h2>
+    <p class="section-desc">「はじめてのプロジェクト」で作成した hello-world リポジトリに機能を追加しながら、Issue→Branch→Plan→実装→テスト→PR→レビュー→マージの一連の開発フローを体験します。所要時間: 約25分</p>
+
+    <div class="explain-box">
+      このチュートリアルでは、チーム開発で日常的に行う開発ワークフローを実践します。Claude Code のスキル（<code>/fix-issue</code>、<code>/review-pr</code>、<code>/commit</code>）やPlan Modeを活用し、1人でもWriter/Reviewerパターンを体験できます。
+    </div>
+
+    <!-- Prerequisites -->
+    <h3>前提条件</h3>
+    <table>
+      <thead><tr><th>項目</th><th>要件</th></tr></thead>
+      <tbody>
+        <tr><td>はじめてのプロジェクト</td><td>完了済み（hello-world リポジトリが存在すること）</td></tr>
+        <tr><td>VS Code + Claude Code</td><td>インストール・サインイン済み</td></tr>
+        <tr><td>GitHub CLI</td><td><code>gh auth status</code> で認証済み</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Flow Diagram -->
+    <div class="diagram-container" style="margin:20px 0;">
+      <div class="flow-diagram">
+        <div class="flow-row" style="gap:6px; flex-wrap:wrap; justify-content:center;">
+          <div class="flow-node green" style="font-size:11px; min-width:80px;">1. Issue</div>
+          <div class="flow-arrow side" style="font-size:14px;">→</div>
+          <div class="flow-node blue" style="font-size:11px; min-width:80px;">2. Branch</div>
+          <div class="flow-arrow side" style="font-size:14px;">→</div>
+          <div class="flow-node blue" style="font-size:11px; min-width:80px;">3. Plan</div>
+          <div class="flow-arrow side" style="font-size:14px;">→</div>
+          <div class="flow-node yellow" style="font-size:11px; min-width:80px;">4. 実装</div>
+          <div class="flow-arrow side" style="font-size:14px;">→</div>
+          <div class="flow-node yellow" style="font-size:11px; min-width:80px;">5. テスト</div>
+          <div class="flow-arrow side" style="font-size:14px;">→</div>
+          <div class="flow-node highlight" style="font-size:11px; min-width:80px;">6. Commit</div>
+          <div class="flow-arrow side" style="font-size:14px;">→</div>
+          <div class="flow-node purple" style="font-size:11px; min-width:80px;">7. PR</div>
+          <div class="flow-arrow side" style="font-size:14px;">→</div>
+          <div class="flow-node purple" style="font-size:11px; min-width:80px;">8. Review</div>
+          <div class="flow-arrow side" style="font-size:14px;">→</div>
+          <div class="flow-node green" style="font-size:11px; min-width:80px;">9. Merge</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 1 -->
+    <h3>1. Issue を起票する</h3>
+    <p>まず、追加したい機能を GitHub Issue として登録します。これが開発の起点になります。</p>
+<pre><code>cd ~/hello-world
+
+# Issue を作成
+gh issue create \
+  --title "feat: カウンター機能を追加する" \
+  --body "## 概要
+ページにクリックカウンターボタンを追加する。
+
+## 要件
+- ボタンをクリックするとカウントが1ずつ増える
+- 現在のカウント数を表示する
+- ダークテーマに合ったデザイン
+
+## 受け入れ基準
+- [ ] カウンターボタンが表示される
+- [ ] クリックでカウントが増加する
+- [ ] ページのデザインと統一感がある"</code></pre>
+    <p>作成された Issue 番号（例: <code>#1</code>）を確認してください。以降のステップで使います。</p>
+    <div class="edit-hint">
+      💡 Issue テンプレートを使うと、チーム全体で統一されたフォーマットで起票できます。このリポジトリの <code>.github/ISSUE_TEMPLATE/</code> を参照してください。
+    </div>
+
+    <!-- Step 2 -->
+    <h3>2. ブランチを作成する</h3>
+    <p>Issue に対応する作業ブランチを作成します。ブランチ名に Issue 番号を含めることで、後でPRと自動的に紐付きます。</p>
+    <div class="explain-box" style="border-left-color: var(--accent);">
+      <strong>Claude への指示例:</strong><br>
+      <code style="display:block; margin-top:8px; padding:12px; background:var(--bg-code); border-radius:6px; white-space:pre-wrap;">Issue #1 の作業ブランチを作成して</code>
+    </div>
+    <p>または手動で:</p>
+<pre><code># feature ブランチを作成して切り替え
+git checkout -b feature/1-add-counter</code></pre>
+    <div class="edit-hint">
+      💡 ブランチ名の規約: <code>feature/&lt;issue番号&gt;-&lt;短い説明&gt;</code>。例: <code>feature/1-add-counter</code>、<code>fix/23-login-error</code>
+    </div>
+
+    <!-- Step 3 -->
+    <h3>3. Plan Mode で実装計画を立てる</h3>
+    <p>いきなりコードを書くのではなく、まず計画を立てます。VS Code の Claude パネルでモードを <strong>Plan</strong> に切り替えてください。</p>
+    <div class="explain-box" style="border-left-color: var(--accent);">
+      <strong>Claude への指示（Plan Mode）:</strong><br>
+      <code style="display:block; margin-top:8px; padding:12px; background:var(--bg-code); border-radius:6px; white-space:pre-wrap;">Issue #1 の要件に基づいて、docs/index.html にカウンター機能を追加する計画を立てて。
+既存のコード構成を確認した上で、変更箇所と実装方針を提案して。</code>
+    </div>
+    <p>Claude が以下のような計画を提示します:</p>
+    <div class="card" style="font-size:13px;">
+      <div class="card-title"><span class="icon">📋</span> 実装計画の例</div>
+      <p><strong>変更対象:</strong> <code>docs/index.html</code></p>
+      <p><strong>変更内容:</strong></p>
+      <ol>
+        <li>HTML: カウンターボタンとカウント表示の要素を追加</li>
+        <li>CSS: ボタンのダークテーマスタイルを追加</li>
+        <li>JavaScript: クリックイベントとカウントロジックを実装</li>
+      </ol>
+      <p><strong>影響範囲:</strong> 既存の Hello World 表示・時計機能に影響なし</p>
+    </div>
+    <p>計画を確認して問題なければ、モードを <strong>Normal</strong> に戻して次のステップへ進みます。</p>
+    <div class="edit-hint">
+      💡 Plan Modeは複雑な実装の前に特に有効です。計画にインラインコメントでフィードバックを追加できます。
+    </div>
+
+    <!-- Step 4 -->
+    <h3>4. 機能を実装する</h3>
+    <p>Normal Mode に戻して、Claude に実装を依頼します。</p>
+    <div class="explain-box" style="border-left-color: var(--accent);">
+      <strong>Claude への指示:</strong><br>
+      <code style="display:block; margin-top:8px; padding:12px; background:var(--bg-code); border-radius:6px; white-space:pre-wrap;">計画に沿って、docs/index.html にカウンター機能を実装して。
+ボタンのスタイルは既存のダークテーマに合わせて。</code>
+    </div>
+    <p>Claude が <code>docs/index.html</code> を編集し、カウンター機能を追加します。変更内容はインラインdiffで表示されるので、適用前に確認できます。</p>
+    <p>手動で実装する場合は、以下のような変更を <code>docs/index.html</code> の <code>&lt;body&gt;</code> 内に追加します:</p>
+<pre><code>&lt;!-- 既存の footer の後に追加 --&gt;
+&lt;div class="counter"&gt;
+  &lt;button id="counter-btn" onclick="countUp()"&gt;Click me!&lt;/button&gt;
+  &lt;span id="counter-display"&gt;0&lt;/span&gt; clicks
+&lt;/div&gt;
+
+&lt;style&gt;
+  .counter { display:flex; align-items:center; gap:12px; margin-top:16px; }
+  #counter-btn {
+    background:#d4a574; color:#1a1a2e; border:none;
+    padding:10px 24px; border-radius:8px; font-size:1rem;
+    font-weight:600; cursor:pointer; transition:opacity 0.2s;
+  }
+  #counter-btn:hover { opacity:0.85; }
+  #counter-display { font-size:1.5rem; color:#7eb8da; font-weight:700; }
+&lt;/style&gt;
+
+&lt;script&gt;
+  let count = 0;
+  function countUp() {
+    count++;
+    document.getElementById('counter-display').textContent = count;
+  }
+&lt;/script&gt;</code></pre>
+
+    <!-- Step 5 -->
+    <h3>5. ローカルで動作確認する</h3>
+    <p>実装が完了したら、ブラウザで確認します。</p>
+<pre><code># macOS
+open docs/index.html</code></pre>
+    <p>確認ポイント:</p>
+    <table>
+      <thead><tr><th>項目</th><th>確認内容</th></tr></thead>
+      <tbody>
+        <tr><td>カウンターボタン</td><td>「Click me!」ボタンが表示されているか</td></tr>
+        <tr><td>クリック動作</td><td>ボタンをクリックするとカウントが増えるか</td></tr>
+        <tr><td>デザイン</td><td>既存のダークテーマと統一感があるか</td></tr>
+        <tr><td>既存機能</td><td>Hello World 表示と時計が壊れていないか</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Step 6 -->
+    <h3>6. コミットする</h3>
+    <p>Claude Code の <code>/commit</code> スキルを使うと、変更内容を分析して適切なコミットメッセージを自動生成します。</p>
+    <div class="explain-box" style="border-left-color: var(--accent);">
+      <strong>Claude への指示:</strong><br>
+      <code style="display:block; margin-top:8px; padding:12px; background:var(--bg-code); border-radius:6px; white-space:pre-wrap;">/commit</code>
+    </div>
+    <p>Claude が差分を分析し、Conventional Commit 形式のメッセージを提案します:</p>
+<pre><code>feat: カウンター機能を追加 (#1)
+
+- クリックカウンターボタンをページに追加
+- ダークテーマに合わせたスタイリング
+- カウントのリアルタイム表示
+
+Closes #1</code></pre>
+    <p>手動でコミットする場合:</p>
+<pre><code>git add -A
+git commit -m "feat: カウンター機能を追加 (#1)
+
+Closes #1"</code></pre>
+    <div class="edit-hint">
+      💡 コミットメッセージに <code>Closes #1</code> を含めると、PRマージ時にIssueが自動的にクローズされます。
+    </div>
+
+    <!-- Step 7 -->
+    <h3>7. Pull Request を作成する</h3>
+    <p>ブランチをプッシュして Pull Request を作成します。</p>
+<pre><code># ブランチをプッシュ
+git push -u origin feature/1-add-counter
+
+# PR を作成
+gh pr create \
+  --title "feat: カウンター機能を追加" \
+  --body "## 概要
+Issue #1 に対応。ページにクリックカウンター機能を追加。
+
+## 変更内容
+- カウンターボタンとカウント表示を追加
+- ダークテーマスタイリング
+- クリックイベントハンドラ
+
+## テスト
+- [ ] ボタンクリックでカウントが増加する
+- [ ] 既存のHello World表示に影響がない
+- [ ] モバイル表示で崩れない
+
+Closes #1"</code></pre>
+    <p>作成された PR の URL をブラウザで開いて内容を確認してください。</p>
+
+    <!-- Step 8 -->
+    <h3>8. コードレビューを行う</h3>
+    <p>チーム開発では別のメンバーがレビューしますが、ここでは Claude Code の <code>/review-pr</code> スキルでセルフレビューを体験します。</p>
+    <div class="explain-box" style="border-left-color: var(--accent);">
+      <strong>Claude への指示:</strong><br>
+      <code style="display:block; margin-top:8px; padding:12px; background:var(--bg-code); border-radius:6px; white-space:pre-wrap;">/review-pr 1</code>
+    </div>
+    <p>Claude が PR の差分を分析し、以下の観点でレビューコメントを返します:</p>
+    <table>
+      <thead><tr><th>観点</th><th>チェック内容</th></tr></thead>
+      <tbody>
+        <tr><td>バグ</td><td>ロジックエラー、エッジケースの見落とし</td></tr>
+        <tr><td>セキュリティ</td><td>XSS、インジェクション、機密情報の漏洩</td></tr>
+        <tr><td>パフォーマンス</td><td>不要な再レンダリング、メモリリーク</td></tr>
+        <tr><td>コードスタイル</td><td>CLAUDE.md のルールとの整合性</td></tr>
+        <tr><td>テスト</td><td>テストカバレッジ、テストケースの妥当性</td></tr>
+      </tbody>
+    </table>
+    <div class="edit-hint">
+      💡 <strong>Writer/Reviewer パターン</strong>: VS Codeで「Open in New Tab」を使うと、実装用とレビュー用の2つのClaudeセッションを並行して開けます。Writerが実装し、Reviewerが独立した視点でレビューします。
+    </div>
+
+    <!-- Step 9 -->
+    <h3>9. マージしてデプロイする</h3>
+    <p>レビューで問題がなければ、PRをマージします。</p>
+<pre><code># PR をマージ（squash merge でコミット履歴をきれいに保つ）
+gh pr merge 1 --squash --delete-branch</code></pre>
+    <p>マージすると:</p>
+    <ul>
+      <li>feature ブランチが自動削除される</li>
+      <li>Issue #1 が自動クローズされる（<code>Closes #1</code> の効果）</li>
+      <li>main ブランチに変更が反映される</li>
+      <li>GitHub Pages が自動的に再デプロイされる</li>
+    </ul>
+    <p>1〜2分後に公開サイトで確認:</p>
+<pre><code>https://monogatari-it-dept.github.io/hello-world/</code></pre>
+
+    <!-- Summary -->
+    <h3>ワークフローまとめ</h3>
+    <p>このチュートリアルで体験した開発ワークフローの全体像です:</p>
+    <table>
+      <thead><tr><th>ステップ</th><th>操作</th><th>Claude Code の活用</th></tr></thead>
+      <tbody>
+        <tr><td><strong>1. Issue</strong></td><td><code>gh issue create</code></td><td>Issue テンプレートで標準化</td></tr>
+        <tr><td><strong>2. Branch</strong></td><td><code>git checkout -b</code></td><td>Claude が Issue から自動命名</td></tr>
+        <tr><td><strong>3. Plan</strong></td><td>Plan Mode で計画</td><td>実装計画をMarkdownで提示</td></tr>
+        <tr><td><strong>4. 実装</strong></td><td>Normal Mode で実装</td><td>自然言語の指示でコード生成</td></tr>
+        <tr><td><strong>5. テスト</strong></td><td>ブラウザで動作確認</td><td>テストコード自動生成も可能</td></tr>
+        <tr><td><strong>6. Commit</strong></td><td><code>/commit</code></td><td>Conventional Commit を自動生成</td></tr>
+        <tr><td><strong>7. PR</strong></td><td><code>gh pr create</code></td><td>PR テンプレートで標準化</td></tr>
+        <tr><td><strong>8. Review</strong></td><td><code>/review-pr</code></td><td>5観点の自動レビュー</td></tr>
+        <tr><td><strong>9. Merge</strong></td><td><code>gh pr merge</code></td><td>Issue 自動クローズ、Pages 自動デプロイ</td></tr>
+      </tbody>
+    </table>
+
+    <div class="explain-box" style="margin-top:20px;">
+      <strong>チーム開発では:</strong> 実際のチーム開発では、Step 4（実装）を1人のメンバー（Writer）が、Step 8（レビュー）を別のメンバー（Reviewer）が担当します。両者がそれぞれの Claude Code セッションを使うことで、独立した視点で品質を担保できます。詳しくは <a href="#" onclick="navigate('team-guide'); return false;" style="color:var(--link);">チーム開発ガイドライン</a> を参照してください。
+    </div>
 
   </section>
 
