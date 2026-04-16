@@ -690,46 +690,37 @@ tr:hover td { background: rgba(255,255,255,0.02); }
     <div class="diagram-container">
       <div class="mermaid">
 graph TB
-  subgraph DEV["開発者の環境"]
-    VSC["VS Code<br/>+ Claude Code拡張"]
-    CLI["Claude Code CLI<br/>(ターミナル)"]
-    LOCAL["ローカルリポジトリ<br/>CLAUDE.md / .claude/"]
+  subgraph DEV [Developer Environment]
+    VSC[VS Code + Claude Code]
+    CLI[Claude Code CLI]
+    LOCAL[Local Repository]
   end
-
-  subgraph GH["GitHub (monogatari-it-dept)"]
-    REPO["リポジトリ<br/>claude-code-setup"]
-    ISSUES["Issues<br/>タスク管理"]
-    PR["Pull Requests<br/>コードレビュー"]
-    PAGES["GitHub Pages<br/>ドキュメント公開"]
+  subgraph GH [GitHub Organization]
+    REPO[Repository]
+    ISSUES[Issues]
+    PR[Pull Requests]
+    PAGES[GitHub Pages]
   end
-
-  subgraph CLAUDE_CFG["Claude Code 設定 (Git管理)"]
-    CMD["CLAUDE.md<br/>共通ルール"]
-    SETTINGS[".claude/settings.json<br/>権限・Hooks"]
-    RULES[".claude/rules/<br/>パス別ルール"]
-    SKILLS[".claude/skills/<br/>ワークフロー"]
-    AGENTS[".claude/agents/<br/>専門エージェント"]
+  subgraph CFG [Claude Code Config]
+    CMD[CLAUDE.md]
+    SETTINGS[settings.json]
+    RULES[rules/]
+    SKILLS[skills/]
+    AGENTS[agents/]
   end
-
-  subgraph API["Anthropic API"]
-    CLAUDE_AI["Claude AI<br/>コード生成・レビュー・分析"]
+  subgraph AI [Anthropic API]
+    CLAUDE[Claude AI]
   end
-
-  VSC <-->|"会話・編集"| CLAUDE_AI
-  CLI <-->|"コマンド実行"| CLAUDE_AI
+  VSC --- CLAUDE
+  CLI --- CLAUDE
   VSC --- LOCAL
   CLI --- LOCAL
-  LOCAL <-->|"push / pull"| REPO
+  LOCAL ---|push/pull| REPO
   REPO --- ISSUES
   REPO --- PR
-  REPO -->|"/docs"| PAGES
-  REPO --- CLAUDE_CFG
-  CLAUDE_AI -.->|"設定を読み込み"| CLAUDE_CFG
-
-  style DEV fill:#1a2332,stroke:#2a4a6b,color:#e2e4ea
-  style GH fill:#1a2a1a,stroke:#2a6b2a,color:#e2e4ea
-  style CLAUDE_CFG fill:#2a1a2a,stroke:#6b2a6b,color:#e2e4ea
-  style API fill:#2a2a1a,stroke:#6b6b2a,color:#e2e4ea
+  REPO ---|/docs| PAGES
+  REPO --- CFG
+  CLAUDE -.->|load config| CFG
       </div>
     </div>
 
@@ -741,33 +732,24 @@ graph TB
     <div class="diagram-container">
       <div class="mermaid">
 graph LR
-  subgraph AUTO["自動読み込み"]
-    A["CLAUDE.md<br/>━━━━━━━━<br/>ビルドコマンド<br/>コードスタイル<br/>アーキテクチャ<br/>ワークフロー"]
-    B[".claude/rules/<br/>━━━━━━━━<br/>frontend.md → src/client/**<br/>backend.md → src/server/**<br/>testing.md → **/*.test.ts"]
+  subgraph AUTO [Auto Load]
+    A[CLAUDE.md]
+    B[.claude/rules/]
   end
-
-  subgraph TRIGGER["イベント駆動"]
-    C[".claude/settings.json<br/>Hooks<br/>━━━━━━━━<br/>PostToolUse → 自動フォーマット<br/>Notification → デスクトップ通知<br/>Stop → タスク完了チェック"]
+  subgraph TRIGGER [Event Driven]
+    C[Hooks - settings.json]
   end
-
-  subgraph MANUAL["手動起動"]
-    D[".claude/skills/<br/>━━━━━━━━<br/>/fix-issue → Issue修正<br/>/review-pr → PRレビュー<br/>/commit → コミット<br/>/create-api → API生成"]
+  subgraph MANUAL [Manual Invoke]
+    D[.claude/skills/]
   end
-
-  subgraph DELEGATE["委譲実行"]
-    E[".claude/agents/<br/>━━━━━━━━<br/>security-reviewer<br/>→ 脆弱性検出<br/>test-writer<br/>→ テスト生成"]
+  subgraph DELEGATE [Delegated]
+    E[.claude/agents/]
   end
-
-  SESSION["Claude Code<br/>セッション開始"] --> A
-  SESSION --> B
-  TOOL["ツール実行<br/>イベント発生"] --> C
-  USER["ユーザー指示<br/>/ コマンド"] --> D
-  CLAUDE_JUDGE["Claude判断<br/>or ユーザー指示"] --> E
-
-  style AUTO fill:#1a2a1a,stroke:#2a6b2a,color:#e2e4ea
-  style TRIGGER fill:#2a2a1a,stroke:#6b6b2a,color:#e2e4ea
-  style MANUAL fill:#1a2332,stroke:#2a4a6b,color:#e2e4ea
-  style DELEGATE fill:#2a1a2a,stroke:#6b2a6b,color:#e2e4ea
+  S1([Session Start]) --> A
+  S1 --> B
+  S2([Tool Event]) --> C
+  S3([User Command]) --> D
+  S4([Claude / User]) --> E
       </div>
     </div>
 
@@ -779,25 +761,19 @@ graph LR
     <div class="diagram-container">
       <div class="mermaid">
 graph TD
-  I["Issue起票<br/>📋 バグ報告 / 機能リクエスト"] -->|"/fix-issue N"| B["ブランチ作成<br/>🌿 feature/xxx, fix/xxx"]
-  B --> P["Plan Mode<br/>📝 実装計画をレビュー"]
-  P --> D["実装<br/>💻 VS Code + Claude Code"]
-  D --> T["テスト・検証<br/>🧪 npm test / npx tsc"]
-  T -->|"失敗"| D
-  T -->|"成功<br/>/commit"| C["コミット<br/>💾 Conventional Commits"]
-  C --> PR["PR作成<br/>📤 gh pr create"]
-  PR --> R["コードレビュー<br/>👀 /review-pr N"]
-  R -->|"修正要求"| D
-  R -->|"承認"| M["マージ<br/>✅ main ← feature"]
-  M --> DEPLOY["デプロイ<br/>🚀"]
-
-  SEC["セキュリティレビュー<br/>🛡️ security-reviewer"] -.->|"自動チェック"| PR
-  TW["テスト生成<br/>✅ test-writer"] -.->|"テスト補完"| T
-
-  style I fill:#2a1a2a,stroke:#6b2a6b,color:#e2e4ea
-  style PR fill:#1a2332,stroke:#2a4a6b,color:#e2e4ea
-  style M fill:#1a2a1a,stroke:#2a6b2a,color:#e2e4ea
-  style DEPLOY fill:#2a2a1a,stroke:#6b6b2a,color:#e2e4ea
+  I[Issue] -->|/fix-issue| B[Branch]
+  B --> P[Plan Mode]
+  P --> D[Implement]
+  D --> T[Test / Lint]
+  T -->|fail| D
+  T -->|pass| C[Commit]
+  C --> PR[Pull Request]
+  PR --> R[Code Review]
+  R -->|fix needed| D
+  R -->|approved| M[Merge to main]
+  M --> DEPLOY[Deploy]
+  SEC([security-reviewer]) -.-> PR
+  TW([test-writer]) -.-> T
       </div>
     </div>
 
@@ -809,37 +785,30 @@ graph TD
     <div class="diagram-container">
       <div class="mermaid">
 graph TB
-  subgraph GIT["Git管理（チーム共有）"]
-    CM["CLAUDE.md<br/>プロジェクト共通ルール"]
-    SET[".claude/settings.json<br/>権限・Hooks"]
-    R1[".claude/rules/frontend.md"]
-    R2[".claude/rules/backend.md"]
-    R3[".claude/rules/testing.md"]
-    S1[".claude/skills/fix-issue/"]
-    S2[".claude/skills/review-pr/"]
-    S3[".claude/skills/commit/"]
-    S4[".claude/skills/create-api/"]
-    AG1[".claude/agents/security-reviewer.md"]
-    AG2[".claude/agents/test-writer.md"]
-    VS1[".vscode/settings.json"]
-    VS2[".vscode/extensions.json"]
-    GHT[".github/ テンプレート"]
-    DOC["docs/ ドキュメント"]
+  subgraph GIT [Git Managed - Team Shared]
+    CM[CLAUDE.md]
+    SET[settings.json]
+    R1[rules/frontend.md]
+    R2[rules/backend.md]
+    R3[rules/testing.md]
+    S1[skills/fix-issue]
+    S2[skills/review-pr]
+    S3[skills/commit]
+    S4[skills/create-api]
+    AG1[agents/security-reviewer]
+    AG2[agents/test-writer]
+    VS1[.vscode/settings.json]
+    GHT[.github/ templates]
   end
-
-  subgraph LOCAL[".gitignore（個人設定）"]
-    LCM["CLAUDE.local.md<br/>個人の好み・設定"]
-    LSET[".claude/settings.local.json<br/>個人の権限設定"]
-    ENV[".env<br/>環境変数・シークレット"]
+  subgraph LOCAL [.gitignore - Personal]
+    LCM[CLAUDE.local.md]
+    LSET[settings.local.json]
+    ENV[.env]
   end
-
-  CM -->|"毎セッション読み込み"| LOAD["Claude Code"]
-  LCM -->|"毎セッション読み込み"| LOAD
-  SET -->|"権限チェック"| LOAD
-  LSET -->|"個人権限を上書き"| LOAD
-
-  style GIT fill:#1a2a1a,stroke:#2a6b2a,color:#e2e4ea
-  style LOCAL fill:#2a1a1a,stroke:#6b2a2a,color:#e2e4ea
+  CM -->|auto load| LOAD[Claude Code]
+  LCM -->|auto load| LOAD
+  SET -->|permissions| LOAD
+  LSET -->|override| LOAD
       </div>
     </div>
 
@@ -851,37 +820,29 @@ graph TB
     <div class="diagram-container">
       <div class="mermaid">
 graph LR
-  subgraph ALLOW["✅ 許可リスト"]
-    A1["npm run lint / format / test"]
-    A2["npm run dev / build"]
-    A3["npx tsc"]
-    A4["git status / log / diff / add / commit"]
-    A5["git branch / checkout / switch"]
-    A6["git push / pull"]
-    A7["gh pr / gh issue"]
+  subgraph ALLOW [Allow List]
+    A1[npm run lint/format/test]
+    A2[npm run dev/build]
+    A3[npx tsc]
+    A4[git status/log/diff/add/commit]
+    A5[git branch/checkout/push/pull]
+    A6[gh pr / gh issue]
   end
-
-  subgraph DENY["🚫 拒否リスト"]
-    D1["rm -rf /"]
-    D2["git push --force"]
-    D3["git reset --hard"]
-    D4["npm publish"]
+  subgraph DENY [Deny List]
+    D1[rm -rf /]
+    D2[git push --force]
+    D3[git reset --hard]
+    D4[npm publish]
   end
-
-  subgraph HOOKS["⚡ 自動処理 (Hooks)"]
-    H1["PostToolUse<br/>Edit/Write → Prettier自動フォーマット"]
-    H2["Notification<br/>入力待ち → デスクトップ通知"]
-    H3["Stop<br/>セッション終了 → 未完了タスク確認"]
+  subgraph HOOKS [Hooks]
+    H1[PostToolUse - Auto Format]
+    H2[Notification - Desktop Alert]
+    H3[Stop - Task Completion Check]
   end
-
-  REQ["Claude Code<br/>コマンド実行要求"] --> CHECK{"settings.json<br/>権限チェック"}
-  CHECK -->|"許可"| ALLOW
-  CHECK -->|"拒否"| DENY
-  CHECK -->|"イベント"| HOOKS
-
-  style ALLOW fill:#1a2a1a,stroke:#2a6b2a,color:#e2e4ea
-  style DENY fill:#2a1a1a,stroke:#6b2a2a,color:#e2e4ea
-  style HOOKS fill:#2a2a1a,stroke:#6b6b2a,color:#e2e4ea
+  REQ([Command Request]) --> CHECK{settings.json}
+  CHECK -->|allow| ALLOW
+  CHECK -->|deny| DENY
+  CHECK -->|event| HOOKS
       </div>
     </div>
 
@@ -1941,28 +1902,41 @@ mermaid.initialize({
   }
 });
 
-// Render mermaid diagrams when architecture section becomes visible
-function renderMermaid() {
-  const diagrams = document.querySelectorAll('.mermaid:not([data-processed])');
-  diagrams.forEach(function(el, i) {
-    el.setAttribute('data-processed', 'true');
-    const id = 'mermaid-' + Date.now() + '-' + i;
+// Store raw mermaid source before any rendering attempt
+var mermaidSources = {};
+document.querySelectorAll('.mermaid').forEach(function(el, i) {
+  mermaidSources[i] = el.textContent.trim();
+  el.setAttribute('data-idx', i);
+});
+
+var mermaidRendered = false;
+
+async function renderMermaid() {
+  if (mermaidRendered) return;
+  var els = document.querySelectorAll('.mermaid');
+  for (var i = 0; i < els.length; i++) {
+    var el = els[i];
+    var idx = el.getAttribute('data-idx');
+    var src = mermaidSources[idx];
+    if (!src) continue;
     try {
-      mermaid.render(id, el.textContent.trim()).then(function(result) {
-        el.innerHTML = result.svg;
-      });
+      var id = 'mmd-' + idx + '-' + Date.now();
+      var result = await mermaid.render(id, src);
+      el.innerHTML = result.svg;
     } catch(e) {
-      console.warn('Mermaid render error:', e);
+      console.warn('Mermaid render error for diagram ' + idx + ':', e);
+      el.innerHTML = '<pre style="color:#e06c75;font-size:12px">図の描画に失敗しました</pre>';
     }
-  });
+  }
+  mermaidRendered = true;
 }
 
-// Observe section visibility to trigger rendering
+// Wrap navigate to trigger mermaid rendering
 var origNavigate = navigate;
 navigate = function(sectionId) {
   origNavigate(sectionId);
   if (sectionId === 'architecture') {
-    setTimeout(renderMermaid, 100);
+    setTimeout(renderMermaid, 50);
   }
 };
 
