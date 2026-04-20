@@ -698,7 +698,6 @@ pre:hover .copy-btn { opacity: 1; }
     <div class="nav-section-title">STEP 1 — 全体を知る</div>
     <a class="nav-link active" data-section="overview">ホーム</a>
     <a class="nav-link" data-section="architecture">アーキテクチャ概要</a>
-    <a class="nav-link" data-section="tech-guide">技術選定ガイド</a>
     <a class="nav-link" data-section="team-guide">チーム開発ガイドライン</a>
   </div>
 
@@ -722,6 +721,7 @@ pre:hover .copy-btn { opacity: 1; }
   <div class="nav-section">
     <details class="nav-details" id="ref-details">
       <summary>リファレンス</summary>
+      <a class="nav-link" data-section="tech-guide">技術選定ガイド</a>
       <details class="nav-details" style="padding-left:8px;" open>
         <summary style="font-size:10px;padding:2px 12px 4px;">設定ファイル</summary>
         <a class="nav-link" data-section="claude-md">CLAUDE.md</a>
@@ -784,10 +784,6 @@ pre:hover .copy-btn { opacity: 1; }
         <h4>🏗️ アーキテクチャ概要</h4>
         <p>全体構成図、開発フロー図、Claude Code拡張ポイント、セキュリティ構成を図解</p>
       </div>
-      <div class="overview-card" onclick="navigate('tech-guide')">
-        <h4>🧭 技術選定ガイド</h4>
-        <p>Google Workspace環境でのプロジェクト規模・特徴に応じた推奨言語・アーキテクチャ</p>
-      </div>
       <div class="overview-card" onclick="navigate('team-guide')">
         <h4>📘 チーム開発ガイドライン</h4>
         <p>基本原則、コンテキスト管理、ファイル構成、開発フロー、アンチパターンをカバーする包括ガイド</p>
@@ -833,9 +829,17 @@ pre:hover .copy-btn { opacity: 1; }
     <details style="margin-top:32px;">
       <summary style="cursor:pointer;font-size:18px;font-weight:600;color:var(--text);list-style:none;display:flex;align-items:center;gap:8px;">
         <span style="font-size:10px;transition:transform 0.15s;display:inline-block;" class="ref-toggle">▶</span> リファレンス
-        <span style="font-size:12px;color:var(--text-muted);font-weight:400;">— 設定ファイル・スキル・テンプレート</span>
+        <span style="font-size:12px;color:var(--text-muted);font-weight:400;">— 技術選定・設定ファイル・スキル・テンプレート</span>
       </summary>
-    <p style="color:var(--text-muted); font-size:13px; margin:12px 0;">開発に慣れてきたら、各設定ファイル・スキル・テンプレートの詳細を参照してください。</p>
+    <p style="color:var(--text-muted); font-size:13px; margin:12px 0;">プロジェクト開始時の技術選定や、各設定ファイル・スキル・テンプレートの詳細を参照してください。</p>
+
+    <h4 style="font-size:14px; color:var(--text-muted); margin:16px 0 8px;">ガイド</h4>
+    <div class="overview-grid">
+      <div class="overview-card" onclick="navigate('tech-guide')">
+        <h4>🧭 技術選定ガイド</h4>
+        <p>Google Workspace環境でのプロジェクト規模・特徴に応じた推奨言語・アーキテクチャ</p>
+      </div>
+    </div>
 
     <h4 style="font-size:14px; color:var(--text-muted); margin:16px 0 8px;">設定ファイル</h4>
     <div class="overview-grid">
@@ -3167,7 +3171,7 @@ function filterNav(query) {
 var origNavigate = navigate;
 navigate = function(sectionId) {
   // Open reference details if navigating to a reference section
-  var refSections = ['claude-md','settings-json','rule-frontend','rule-backend','rule-testing','skill-fix-issue','skill-review-pr','skill-commit','skill-create-api','agent-security','agent-test','pr-template','issue-bug','issue-feature'];
+  var refSections = ['tech-guide','claude-md','settings-json','rule-frontend','rule-backend','rule-testing','skill-fix-issue','skill-review-pr','skill-commit','skill-create-api','agent-security','agent-test','pr-template','issue-bug','issue-feature'];
   if (refSections.indexOf(sectionId) !== -1) {
     var refDetails = document.getElementById('ref-details');
     if (refDetails) refDetails.open = true;
