@@ -1709,8 +1709,8 @@ gh pr merge 1 --squash --delete-branch</code></pre>
             <div class="flow-node green">GAS<small>Google Apps Script</small></div>
           </div>
           <div class="flow-group blue-border" style="min-width:180px;">
-            <span class="flow-group-title">ノーコード業務アプリ</span>
-            <div class="flow-node blue">AppSheet</div>
+            <span class="flow-group-title">AI / ML 機能</span>
+            <div class="flow-node blue">Vertex AI<small>Gemini API / AutoML</small></div>
           </div>
           <div class="flow-group yellow-border" style="min-width:180px;">
             <span class="flow-group-title">社内ウェブアプリ</span>
@@ -1749,9 +1749,9 @@ gh pr merge 1 --squash --delete-branch</code></pre>
           <td><strong>チーム業務改善</strong></td>
           <td>1〜2人</td>
           <td>1〜5日</td>
-          <td>GAS or AppSheet</td>
-          <td>スプレッドシート + スクリプト / ノーコードアプリ</td>
-          <td>勤怠管理、在庫管理、承認ワークフロー</td>
+          <td>GAS + Vertex AI</td>
+          <td>スプレッドシート + スクリプト + Gemini API</td>
+          <td>勤怠管理、AI要約・分類、ドキュメント自動生成</td>
         </tr>
         <tr>
           <td><strong>部門アプリ</strong></td>
@@ -1796,20 +1796,70 @@ clasp create --type standalone --title "my-tool"
 clasp push   # ローカル→GASにデプロイ
 clasp pull   # GAS→ローカルに取得</code></pre>
 
-    <!-- AppSheet -->
-    <h4>AppSheet</h4>
+    <!-- Vertex AI -->
+    <h4>Vertex AI / Gemini API</h4>
     <div class="explain-box">
-      Google のノーコード/ローコードプラットフォーム。スプレッドシートをデータソースとして、コードを書かずにモバイル対応の業務アプリを構築できる。
+      Google Cloud の AI/ML プラットフォーム。Gemini モデルによるテキスト生成・要約・分類、画像認識、Embeddings によるセマンティック検索など、AI機能をアプリに組み込める。GAS から直接 API 呼び出しも可能。
     </div>
     <table>
       <thead><tr><th>項目</th><th>内容</th></tr></thead>
       <tbody>
-        <tr><td><strong>適用場面</strong></td><td>データ入力・閲覧アプリ、承認ワークフロー、在庫・資産管理、現場報告</td></tr>
-        <tr><td><strong>強み</strong></td><td>コード不要、モバイル対応自動、オフライン対応、GWSデータ直結</td></tr>
-        <tr><td><strong>制限</strong></td><td>複雑なUIカスタマイズ不可、高度なロジックに限界、パフォーマンスは行数に依存</td></tr>
-        <tr><td><strong>使い分け</strong></td><td>CRUD中心の業務アプリ → AppSheet、カスタムUI・複雑ロジック → コード開発</td></tr>
+        <tr><td><strong>主要サービス</strong></td><td>Gemini API（テキスト生成・マルチモーダル）、Embeddings API、AutoML、Vertex AI Search</td></tr>
+        <tr><td><strong>適用場面</strong></td><td>ドキュメント要約、メール自動分類、社内FAQ チャットボット、データ分析レポート自動生成、画像・PDF 解析</td></tr>
+        <tr><td><strong>強み</strong></td><td>GWS データと AI の直接統合、Google Cloud IAM による認証、スケーラブル、マルチモーダル対応</td></tr>
+        <tr><td><strong>制限</strong></td><td>GCP プロジェクト・課金設定が必要、API クォータ管理、レスポンス品質のチューニングが必要な場合あり</td></tr>
+        <tr><td><strong>料金</strong></td><td>Gemini API は無料枠あり（リクエスト数/日制限）。本番利用は従量課金</td></tr>
       </tbody>
     </table>
+<pre><code># Vertex AI / Gemini API のセットアップ
+gcloud auth login
+gcloud config set project YOUR_PROJECT_ID
+
+# Gemini API を有効化
+gcloud services enable aiplatform.googleapis.com
+
+# Python からの利用例
+pip install google-cloud-aiplatform
+
+# Node.js からの利用例
+npm install @google-cloud/vertexai
+
+# GAS から Gemini API を呼ぶ場合
+# → UrlFetchApp.fetch() で REST API を直接呼び出し</code></pre>
+
+    <h4>GAS + Vertex AI 連携パターン</h4>
+    <div class="explain-box">
+      GAS から Vertex AI の Gemini API を呼び出すことで、スプレッドシートのデータに対して AI 処理（要約、分類、翻訳等）を簡単に追加できる。最も手軽な AI 活用パターン。
+    </div>
+<pre><code>// GAS から Gemini API を呼び出す例
+function callGemini(prompt) {
+  const API_KEY = PropertiesService.getScriptProperties()
+                    .getProperty('GEMINI_API_KEY');
+  const url = 'https://generativelanguage.googleapis.com/v1beta'
+            + '/models/gemini-2.0-flash:generateContent'
+            + '?key=' + API_KEY;
+
+  const payload = {
+    contents: [{ parts: [{ text: prompt }] }]
+  };
+
+  const res = UrlFetchApp.fetch(url, {
+    method: 'post',
+    contentType: 'application/json',
+    payload: JSON.stringify(payload)
+  });
+
+  const json = JSON.parse(res.getContentText());
+  return json.candidates[0].content.parts[0].text;
+}
+
+// スプレッドシートのデータを要約する例
+function summarizeColumn() {
+  const sheet = SpreadsheetApp.getActiveSheet();
+  const data = sheet.getRange('A2:A').getValues().flat().filter(String);
+  const summary = callGemini('以下のデータを要約して:\n' + data.join('\n'));
+  sheet.getRange('B1').setValue(summary);
+}</code></pre>
 
     <!-- TypeScript + Web -->
     <h4>TypeScript + ウェブアプリ</h4>
@@ -1829,16 +1879,16 @@ clasp pull   # GAS→ローカルに取得</code></pre>
 
     <h3>プロジェクト特性別 選定チェックリスト</h3>
     <table>
-      <thead><tr><th>特性</th><th>GAS</th><th>AppSheet</th><th>TS + Web</th><th>判断基準</th></tr></thead>
+      <thead><tr><th>特性</th><th>GAS</th><th>Vertex AI</th><th>TS + Web</th><th>判断基準</th></tr></thead>
       <tbody>
-        <tr><td>スプレッドシート中心</td><td><strong style="color:var(--green);">◎</strong></td><td><strong style="color:var(--green);">◎</strong></td><td>△</td><td>データがスプレッドシートに集約される場合はGAS/AppSheet</td></tr>
-        <tr><td>カスタムUI必要</td><td>△</td><td>×</td><td><strong style="color:var(--green);">◎</strong></td><td>独自デザイン・インタラクションが必要ならウェブアプリ</td></tr>
-        <tr><td>モバイル対応</td><td>△</td><td><strong style="color:var(--green);">◎</strong></td><td>○</td><td>モバイルファーストならAppSheet、レスポンシブならWeb</td></tr>
-        <tr><td>外部API連携</td><td>○</td><td>△</td><td><strong style="color:var(--green);">◎</strong></td><td>REST API呼び出しが多い場合はTS + Node.js</td></tr>
+        <tr><td>スプレッドシート中心</td><td><strong style="color:var(--green);">◎</strong></td><td>○</td><td>△</td><td>データがスプレッドシートに集約される場合はGAS。AI分析を加えるならVertex AI連携</td></tr>
+        <tr><td>カスタムUI必要</td><td>△</td><td>△</td><td><strong style="color:var(--green);">◎</strong></td><td>独自デザイン・インタラクションが必要ならウェブアプリ</td></tr>
+        <tr><td>AI / ML 機能</td><td>○</td><td><strong style="color:var(--green);">◎</strong></td><td>○</td><td>要約・分類・生成等のAI機能が必要ならVertex AI。GASから直接呼び出しも可能</td></tr>
+        <tr><td>外部API連携</td><td>○</td><td>○</td><td><strong style="color:var(--green);">◎</strong></td><td>REST API呼び出しが多い場合はTS + Node.js</td></tr>
         <tr><td>定時実行・自動化</td><td><strong style="color:var(--green);">◎</strong></td><td>○</td><td>○</td><td>時間トリガー・イベント駆動はGASが最も手軽</td></tr>
-        <tr><td>複雑なビジネスロジック</td><td>△</td><td>×</td><td><strong style="color:var(--green);">◎</strong></td><td>条件分岐・計算が多い場合は型安全なTSを推奨</td></tr>
+        <tr><td>複雑なビジネスロジック</td><td>△</td><td>○</td><td><strong style="color:var(--green);">◎</strong></td><td>条件分岐・計算が多い場合は型安全なTSを推奨</td></tr>
         <tr><td>チームでの共同開発</td><td>△</td><td>○</td><td><strong style="color:var(--green);">◎</strong></td><td>Git管理・PR運用・Claude Codeフル活用ならTS + Web</td></tr>
-        <tr><td>即日リリース</td><td><strong style="color:var(--green);">◎</strong></td><td><strong style="color:var(--green);">◎</strong></td><td>△</td><td>スピード優先の場合はGAS/AppSheetでプロトタイプ</td></tr>
+        <tr><td>即日リリース</td><td><strong style="color:var(--green);">◎</strong></td><td>△</td><td>△</td><td>スピード優先の場合はGASでプロトタイプ。AI機能はGAS+Gemini APIが最速</td></tr>
       </tbody>
     </table>
 
@@ -1852,9 +1902,9 @@ clasp pull   # GAS→ローカルに取得</code></pre>
           <td><code>clasp</code> でローカル編集 → Claude Code でコード生成・リファクタリング → <code>clasp push</code> でデプロイ。CLAUDE.md に GAS の制限事項を記載しておくと精度向上</td>
         </tr>
         <tr>
-          <td><strong>AppSheet</strong></td>
-          <td>△ 限定的</td>
-          <td>AppSheet 自体はノーコードのため Claude Code の直接支援は少ない。数式やAutomation のロジック設計を相談する用途</td>
+          <td><strong>Vertex AI</strong></td>
+          <td>○ 良い</td>
+          <td>プロンプト設計・API呼び出しコード生成を Claude Code に依頼可能。CLAUDE.md にモデル名・パラメータ・出力形式を記載しておくと精度向上</td>
         </tr>
         <tr>
           <td><strong>TS + Web</strong></td>
@@ -1908,9 +1958,9 @@ clasp pull   # GAS→ローカルに取得</code></pre>
           <td>個人ツールはGAS、単純なUIなら単一HTMLファイル</td>
         </tr>
         <tr>
-          <td>AppSheetで複雑ロジック</td>
-          <td>数式が読めなくなる、デバッグ困難、拡張性なし</td>
-          <td>ロジックが10行超ならコード開発に切り替える</td>
+          <td>Vertex AI を過剰に使う</td>
+          <td>API 料金が膨らむ、レスポンス遅延、単純な処理にAIは不要</td>
+          <td>ルールベースで済む処理（日付計算、固定フォーマット変換等）にはAI不要。AI は要約・分類・生成など曖昧な処理に使う</td>
         </tr>
         <tr>
           <td>Git管理なしで複数人開発</td>
