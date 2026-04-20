@@ -12,7 +12,7 @@
   --bg-code: #12141c;
   --border: #2a2d3a;
   --text: #e2e4ea;
-  --text-muted: #8b8fa3;
+  --text-muted: #9da1b5;
   --accent: #d4a574;
   --accent-dim: #b8885a;
   --accent-bg: rgba(212,165,116,0.08);
@@ -187,7 +187,7 @@ h4 {
   margin: 24px 0 8px;
 }
 
-p { margin-bottom: 12px; font-size: 14.5px; }
+p { margin-bottom: 12px; font-size: 14.5px; max-width: 680px; }
 
 ul, ol {
   margin: 8px 0 16px 24px;
@@ -244,7 +244,12 @@ td {
   border: 1px solid var(--border);
 }
 
-tr:hover td { background: rgba(255,255,255,0.02); }
+tr:nth-child(even) td { background: rgba(255,255,255,0.03); }
+tr:hover td { background: rgba(255,255,255,0.05); }
+
+/* Table responsive wrapper */
+.table-wrap { overflow-x: auto; margin: 12px 0 20px; }
+.table-wrap table { margin: 0; }
 
 /* Cards for file tree and config blocks */
 .card {
@@ -533,13 +538,145 @@ tr:hover td { background: rgba(255,255,255,0.02); }
   color: var(--accent);
 }
 
+/* Warning box */
+.warning-box {
+  background: rgba(224,108,117,0.06);
+  border-left: 3px solid var(--red);
+  padding: 14px 18px;
+  margin: 12px 0 20px;
+  border-radius: 0 6px 6px 0;
+  font-size: 13.5px;
+  line-height: 1.8;
+}
+.warning-box strong { color: var(--red); }
+
+/* Do / Don't boxes */
+.do-dont { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0 20px; }
+.do-box, .dont-box {
+  border-radius: 8px;
+  padding: 14px 18px;
+  font-size: 13.5px;
+  line-height: 1.8;
+}
+.do-box { border-left: 3px solid var(--green); background: rgba(126,198,153,0.06); }
+.dont-box { border-left: 3px solid var(--red); background: rgba(224,108,117,0.06); }
+.do-box strong { color: var(--green); }
+.dont-box strong { color: var(--red); }
+
+/* Code copy button */
+pre { position: relative; }
+.copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+.copy-btn.copied { color: var(--green); border-color: var(--green); }
+
+/* STEP cards color accents */
+.step-card-1 { border-top: 2px solid var(--green); }
+.step-card-2 { border-top: 2px solid var(--link); }
+.step-card-3 { border-top: 2px solid var(--yellow); }
+.step-card-4 { border-top: 2px solid var(--purple); }
+
+/* Back-to-top */
+.back-to-top {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, color 0.15s;
+  z-index: 90;
+}
+.back-to-top.visible { opacity: 1; pointer-events: auto; }
+.back-to-top:hover { color: var(--accent); border-color: var(--accent); }
+
+/* Sidebar search */
+.sidebar-search {
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-search input {
+  width: 100%;
+  padding: 6px 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 12px;
+  outline: none;
+}
+.sidebar-search input::placeholder { color: var(--text-muted); }
+.sidebar-search input:focus { border-color: var(--accent); }
+
+/* Sidebar collapsible */
+.nav-details summary {
+  list-style: none;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 4px 20px 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.nav-details summary::-webkit-details-marker { display: none; }
+.nav-details summary::before {
+  content: '▶';
+  font-size: 8px;
+  transition: transform 0.15s;
+  display: inline-block;
+}
+.nav-details[open] summary::before { transform: rotate(90deg); }
+
+/* Diagram caption */
+.diagram-caption {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 8px;
+  font-style: italic;
+}
+
 /* Responsive */
+@media (max-width: 1024px) {
+  .main { padding: 40px 32px 80px; }
+  .do-dont { grid-template-columns: 1fr; }
+}
+
 @media (max-width: 768px) {
   .sidebar { transform: translateX(-100%); }
   .sidebar.open { transform: translateX(0); }
   .menu-toggle { display: block; }
   .main { margin-left: 0; padding: 60px 20px 80px; }
   .overview-grid { grid-template-columns: 1fr; }
+  .do-dont { grid-template-columns: 1fr; }
+  .back-to-top { bottom: 20px; right: 20px; }
 }
 </style>
 </head>
@@ -551,6 +688,10 @@ tr:hover td { background: rgba(255,255,255,0.02); }
   <div class="sidebar-header">
     <h1>Claude Code Team</h1>
     <p>monogatari-it-dept/claude-code-setup</p>
+  </div>
+
+  <div class="sidebar-search">
+    <input type="text" id="nav-search" placeholder="セクション検索…" oninput="filterNav(this.value)">
   </div>
 
   <div class="nav-section">
@@ -579,21 +720,38 @@ tr:hover td { background: rgba(255,255,255,0.02); }
   </div>
 
   <div class="nav-section">
-    <div class="nav-section-title">リファレンス</div>
-    <a class="nav-link" data-section="claude-md">CLAUDE.md</a>
-    <a class="nav-link" data-section="settings-json">settings.json</a>
-    <a class="nav-link" data-section="rule-frontend">ルール: フロントエンド</a>
-    <a class="nav-link" data-section="rule-backend">ルール: バックエンド</a>
-    <a class="nav-link" data-section="rule-testing">ルール: テスト</a>
-    <a class="nav-link" data-section="skill-fix-issue">スキル: fix-issue</a>
-    <a class="nav-link" data-section="skill-review-pr">スキル: review-pr</a>
-    <a class="nav-link" data-section="skill-commit">スキル: commit</a>
-    <a class="nav-link" data-section="skill-create-api">スキル: create-api</a>
-    <a class="nav-link" data-section="agent-security">エージェント: security-reviewer</a>
-    <a class="nav-link" data-section="agent-test">エージェント: test-writer</a>
-    <a class="nav-link" data-section="pr-template">テンプレート: PR</a>
-    <a class="nav-link" data-section="issue-bug">テンプレート: バグ報告</a>
-    <a class="nav-link" data-section="issue-feature">テンプレート: 機能リクエスト</a>
+    <details class="nav-details" id="ref-details">
+      <summary>リファレンス</summary>
+      <details class="nav-details" style="padding-left:8px;" open>
+        <summary style="font-size:10px;padding:2px 12px 4px;">設定ファイル</summary>
+        <a class="nav-link" data-section="claude-md">CLAUDE.md</a>
+        <a class="nav-link" data-section="settings-json">settings.json</a>
+      </details>
+      <details class="nav-details" style="padding-left:8px;">
+        <summary style="font-size:10px;padding:2px 12px 4px;">ルール</summary>
+        <a class="nav-link" data-section="rule-frontend">フロントエンド</a>
+        <a class="nav-link" data-section="rule-backend">バックエンド</a>
+        <a class="nav-link" data-section="rule-testing">テスト</a>
+      </details>
+      <details class="nav-details" style="padding-left:8px;">
+        <summary style="font-size:10px;padding:2px 12px 4px;">スキル</summary>
+        <a class="nav-link" data-section="skill-fix-issue">fix-issue</a>
+        <a class="nav-link" data-section="skill-review-pr">review-pr</a>
+        <a class="nav-link" data-section="skill-commit">commit</a>
+        <a class="nav-link" data-section="skill-create-api">create-api</a>
+      </details>
+      <details class="nav-details" style="padding-left:8px;">
+        <summary style="font-size:10px;padding:2px 12px 4px;">エージェント</summary>
+        <a class="nav-link" data-section="agent-security">security-reviewer</a>
+        <a class="nav-link" data-section="agent-test">test-writer</a>
+      </details>
+      <details class="nav-details" style="padding-left:8px;">
+        <summary style="font-size:10px;padding:2px 12px 4px;">テンプレート</summary>
+        <a class="nav-link" data-section="pr-template">PR</a>
+        <a class="nav-link" data-section="issue-bug">バグ報告</a>
+        <a class="nav-link" data-section="issue-feature">機能リクエスト</a>
+      </details>
+    </details>
   </div>
 </nav>
 
@@ -608,13 +766,13 @@ tr:hover td { background: rgba(255,255,255,0.02); }
     <div class="diagram-container" style="margin:20px 0;">
       <div class="flow-diagram">
         <div class="flow-row" style="gap:8px; flex-wrap:wrap; justify-content:center;">
-          <div class="flow-node green" style="font-weight:600; cursor:pointer;" onclick="navigate('architecture')">STEP 1<small>全体を知る</small></div>
+          <div class="flow-node green step-card-1" style="font-weight:600; cursor:pointer;" onclick="navigate('architecture')">STEP 1<small>全体を知る</small></div>
           <div class="flow-arrow side">→</div>
-          <div class="flow-node blue" style="font-weight:600; cursor:pointer;" onclick="navigate('setup-guide')">STEP 2<small>環境をつくる</small></div>
+          <div class="flow-node blue step-card-2" style="font-weight:600; cursor:pointer;" onclick="navigate('setup-guide')">STEP 2<small>環境をつくる</small></div>
           <div class="flow-arrow side">→</div>
-          <div class="flow-node yellow" style="font-weight:600; cursor:pointer;" onclick="navigate('tutorial')">STEP 3<small>試してみる</small></div>
+          <div class="flow-node yellow step-card-3" style="font-weight:600; cursor:pointer;" onclick="navigate('tutorial')">STEP 3<small>試してみる</small></div>
           <div class="flow-arrow side">→</div>
-          <div class="flow-node purple" style="font-weight:600; cursor:pointer;" onclick="navigate('projects')">STEP 4<small>確認する</small></div>
+          <div class="flow-node purple step-card-4" style="font-weight:600; cursor:pointer;" onclick="navigate('projects')">STEP 4<small>確認する</small></div>
         </div>
       </div>
     </div>
@@ -672,8 +830,12 @@ tr:hover td { background: rgba(255,255,255,0.02); }
     </div>
 
     <!-- リファレンス -->
-    <h3 style="margin-top:32px;">リファレンス</h3>
-    <p style="color:var(--text-muted); font-size:13px; margin-bottom:12px;">開発に慣れてきたら、各設定ファイル・スキル・テンプレートの詳細を参照してください。</p>
+    <details style="margin-top:32px;">
+      <summary style="cursor:pointer;font-size:18px;font-weight:600;color:var(--text);list-style:none;display:flex;align-items:center;gap:8px;">
+        <span style="font-size:10px;transition:transform 0.15s;display:inline-block;" class="ref-toggle">▶</span> リファレンス
+        <span style="font-size:12px;color:var(--text-muted);font-weight:400;">— 設定ファイル・スキル・テンプレート</span>
+      </summary>
+    <p style="color:var(--text-muted); font-size:13px; margin:12px 0;">開発に慣れてきたら、各設定ファイル・スキル・テンプレートの詳細を参照してください。</p>
 
     <h4 style="font-size:14px; color:var(--text-muted); margin:16px 0 8px;">設定ファイル</h4>
     <div class="overview-grid">
@@ -750,6 +912,7 @@ tr:hover td { background: rgba(255,255,255,0.02); }
         <p>背景・課題、提案する解決策、代替案、受け入れ基準</p>
       </div>
     </div>
+    </details>
 
     <div class="card" style="margin-top: 32px">
       <div class="card-title"><span class="icon">📁</span> ファイル構成</div>
@@ -987,7 +1150,7 @@ git push -u origin main</code></pre>
 
     <!-- Step 6 -->
     <h3>6. GitHub Pages を有効化する</h3>
-    <div class="explain-box" style="border-left-color: var(--red);">
+    <div class="warning-box">
       <strong>⚠️ 必ず Step 5 のプッシュが完了してから実行してください。</strong> main ブランチがリモートに存在しないと「The main branch must exist」エラーになります。
     </div>
     <p>GitHub CLI を使って Pages を設定します:</p>
@@ -1440,6 +1603,7 @@ gh pr merge 1 --squash --delete-branch</code></pre>
         </div>
       </div>
     </div>
+    <p class="diagram-caption">図1: 全体構成 — 開発者環境・GitHub・Anthropic APIの関係</p>
 
     <!-- Diagram 2: Claude Code Extension Points -->
     <h3>2. Claude Code 拡張ポイント</h3>
@@ -1479,6 +1643,7 @@ gh pr merge 1 --squash --delete-branch</code></pre>
         </div>
       </div>
     </div>
+    <p class="diagram-caption">図2: Claude Code 拡張ポイント — 自動読み込み / 手動起動 / イベント駆動</p>
 
     <!-- Diagram 3: Development Workflow -->
     <h3>3. 開発ワークフロー</h3>
@@ -1526,6 +1691,7 @@ gh pr merge 1 --squash --delete-branch</code></pre>
         <div class="flow-node green" style="font-weight:600;">Deploy</div>
       </div>
     </div>
+    <p class="diagram-caption">図3: 開発ワークフロー — Issue → Branch → Implement → PR → Merge</p>
 
     <!-- Diagram 4: File Structure -->
     <h3>4. ファイル構成と役割</h3>
@@ -1568,6 +1734,7 @@ gh pr merge 1 --squash --delete-branch</code></pre>
         <div class="flow-node highlight" style="font-weight:600; font-size:14px;">Claude Code</div>
       </div>
     </div>
+    <p class="diagram-caption">図4: ファイル構成 — Git管理（チーム共有）と個人設定の分離</p>
 
     <!-- Diagram 5: Permission & Security -->
     <h3>5. 権限とセキュリティ構成</h3>
@@ -1615,6 +1782,7 @@ gh pr merge 1 --squash --delete-branch</code></pre>
         </div>
       </div>
     </div>
+    <p class="diagram-caption">図5: 権限構成 — Allow List / Deny List / Hooks による安全性制御</p>
 
     <!-- Summary Table -->
     <h3>6. 機能比較サマリー</h3>
@@ -1998,14 +2166,20 @@ function summarizeColumn() {
     <p>小さな修正（typo、ログ追加、変数名変更）は計画をスキップして直接実装してよい。</p>
 
     <h4>1.3 具体的なコンテキストを提供する</h4>
-    <table>
-      <thead><tr><th>悪い例</th><th>良い例</th></tr></thead>
-      <tbody>
-        <tr><td>「テストを追加して」</td><td>「foo.pyにログアウト時のエッジケースのテストを書いて。モックは避けて」</td></tr>
-        <tr><td>「ログインバグを直して」</td><td>「セッションタイムアウト後にログインが失敗する。src/auth/のトークンリフレッシュを確認して、再現テストを書いてから修正して」</td></tr>
-        <tr><td>「カレンダーウィジェットを追加して」</td><td>「HotDogWidget.phpのパターンを参考に、月選択とページネーション付きのカレンダーウィジェットを実装して」</td></tr>
-      </tbody>
-    </table>
+    <div class="do-dont">
+      <div class="dont-box">
+        <strong>Don't — 曖昧な指示</strong><br>
+        「テストを追加して」<br>
+        「ログインバグを直して」<br>
+        「カレンダーウィジェットを追加して」
+      </div>
+      <div class="do-box">
+        <strong>Do — 具体的な指示</strong><br>
+        「foo.pyにログアウト時のエッジケースのテストを書いて。モックは避けて」<br>
+        「セッションタイムアウト後にログインが失敗する。src/auth/のトークンリフレッシュを確認して、再現テストを書いてから修正して」<br>
+        「HotDogWidget.phpのパターンを参考に、月選択とページネーション付きのカレンダーウィジェットを実装して」
+      </div>
+    </div>
 
     <h3>2. コンテキスト管理</h3>
 
@@ -2948,6 +3122,69 @@ document.addEventListener('click', function(e) {
 
 // (diagrams rendered as pure CSS/HTML - no external dependencies)
 
+// ===== Copy-to-clipboard for code blocks =====
+document.querySelectorAll('pre').forEach(function(pre) {
+  var btn = document.createElement('button');
+  btn.className = 'copy-btn';
+  btn.textContent = 'Copy';
+  btn.addEventListener('click', function() {
+    var code = pre.querySelector('code');
+    var text = code ? code.textContent : pre.textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(function() { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+    });
+  });
+  pre.appendChild(btn);
+});
+
+// ===== Back-to-top button =====
+(function() {
+  var btn = document.getElementById('backToTop');
+  window.addEventListener('scroll', function() {
+    btn.classList.toggle('visible', window.scrollY > 300);
+  });
+})();
+
+// ===== Sidebar search filter =====
+function filterNav(query) {
+  var q = query.toLowerCase();
+  document.querySelectorAll('.nav-link').forEach(function(link) {
+    var text = link.textContent.toLowerCase();
+    var match = !q || text.indexOf(q) !== -1;
+    link.style.display = match ? '' : 'none';
+  });
+  // Auto-open reference details when searching
+  var refDetails = document.getElementById('ref-details');
+  if (q && refDetails) {
+    refDetails.open = true;
+    refDetails.querySelectorAll('details').forEach(function(d) { d.open = true; });
+  }
+}
+
+// ===== Navigate also opens reference details if needed =====
+var origNavigate = navigate;
+navigate = function(sectionId) {
+  // Open reference details if navigating to a reference section
+  var refSections = ['claude-md','settings-json','rule-frontend','rule-backend','rule-testing','skill-fix-issue','skill-review-pr','skill-commit','skill-create-api','agent-security','agent-test','pr-template','issue-bug','issue-feature'];
+  if (refSections.indexOf(sectionId) !== -1) {
+    var refDetails = document.getElementById('ref-details');
+    if (refDetails) refDetails.open = true;
+  }
+  origNavigate(sectionId);
+};
+
+// ===== Home reference toggle arrow =====
+document.querySelectorAll('#overview details').forEach(function(det) {
+  var toggle = det.querySelector('.ref-toggle');
+  if (toggle) {
+    det.addEventListener('toggle', function() {
+      toggle.style.transform = det.open ? 'rotate(90deg)' : '';
+    });
+  }
+});
+
 // ===== Dynamic Project Dashboard =====
 const ORG_NAME = 'monogatari-it-dept';
 const AVATAR_COLORS = ['#7eb8da','#c678dd','#e5c07b','#7ec699','#e06c75','#d4a574','#56b6c2'];
@@ -3122,5 +3359,6 @@ async function loadProjects() {
 loadProjects();
 </script>
 
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 </body>
 </html>
