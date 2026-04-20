@@ -557,6 +557,7 @@ tr:hover td { background: rgba(255,255,255,0.02); }
     <div class="nav-section-title">STEP 1 — 全体を知る</div>
     <a class="nav-link active" data-section="overview">ホーム</a>
     <a class="nav-link" data-section="architecture">アーキテクチャ概要</a>
+    <a class="nav-link" data-section="tech-guide">技術選定ガイド</a>
     <a class="nav-link" data-section="team-guide">チーム開発ガイドライン</a>
   </div>
 
@@ -624,6 +625,10 @@ tr:hover td { background: rgba(255,255,255,0.02); }
       <div class="overview-card" onclick="navigate('architecture')">
         <h4>🏗️ アーキテクチャ概要</h4>
         <p>全体構成図、開発フロー図、Claude Code拡張ポイント、セキュリティ構成を図解</p>
+      </div>
+      <div class="overview-card" onclick="navigate('tech-guide')">
+        <h4>🧭 技術選定ガイド</h4>
+        <p>Google Workspace環境でのプロジェクト規模・特徴に応じた推奨言語・アーキテクチャ</p>
       </div>
       <div class="overview-card" onclick="navigate('team-guide')">
         <h4>📘 チーム開発ガイドライン</h4>
@@ -1679,6 +1684,238 @@ gh pr merge 1 --squash --delete-branch</code></pre>
           <td>PR/Issue作成時</td>
           <td>✅ 共有</td>
           <td>PRテンプレート、Issueテンプレート</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </section>
+
+  <!-- ===== Tech Selection Guide ===== -->
+  <section class="doc-section" id="tech-guide">
+    <h2>技術選定ガイド</h2>
+    <p class="section-desc">Google Workspace 環境でのプロジェクト規模・特徴に応じた推奨プログラミング言語とアーキテクチャ</p>
+
+    <h3>なぜ技術選定ガイドが必要か</h3>
+    <p>Google Workspace（GWS）環境では、GAS からウェブアプリまで幅広い技術選択肢がある。プロジェクトの規模や目的に合わない技術を選ぶと、開発効率の低下やメンテナンス困難を招く。このガイドでは、チームが迷わず適切な技術を選択できるよう、判断基準を整理する。</p>
+
+    <h3>技術選定フローチャート</h3>
+    <div class="diagram-container">
+      <div class="flow-diagram">
+        <div class="flow-node highlight" style="font-weight:600;">プロジェクトの目的は？</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-row" style="gap:16px; flex-wrap:wrap; justify-content:center; align-items:flex-start;">
+          <div class="flow-group green-border" style="min-width:180px;">
+            <span class="flow-group-title">スプレッドシート連携・定型業務</span>
+            <div class="flow-node green">GAS<small>Google Apps Script</small></div>
+          </div>
+          <div class="flow-group blue-border" style="min-width:180px;">
+            <span class="flow-group-title">ノーコード業務アプリ</span>
+            <div class="flow-node blue">AppSheet</div>
+          </div>
+          <div class="flow-group yellow-border" style="min-width:180px;">
+            <span class="flow-group-title">社内ウェブアプリ</span>
+            <div class="flow-node yellow">HTML/JS or React<small>+ GAS API / Cloud Functions</small></div>
+          </div>
+          <div class="flow-group purple-border" style="min-width:180px;">
+            <span class="flow-group-title">API・バックエンド</span>
+            <div class="flow-node purple">Node.js / Python<small>Cloud Functions / Cloud Run</small></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3>規模別 推奨技術マトリクス</h3>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:14%;">規模</th>
+          <th style="width:14%;">開発者数</th>
+          <th style="width:14%;">期間目安</th>
+          <th style="width:20%;">推奨言語</th>
+          <th style="width:20%;">アーキテクチャ</th>
+          <th style="width:18%;">具体例</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>個人ツール</strong></td>
+          <td>1人</td>
+          <td>数時間〜1日</td>
+          <td>GAS (JavaScript)</td>
+          <td>スクリプト単体</td>
+          <td>メール自動送信、シート集計、カレンダー連携</td>
+        </tr>
+        <tr>
+          <td><strong>チーム業務改善</strong></td>
+          <td>1〜2人</td>
+          <td>1〜5日</td>
+          <td>GAS or AppSheet</td>
+          <td>スプレッドシート + スクリプト / ノーコードアプリ</td>
+          <td>勤怠管理、在庫管理、承認ワークフロー</td>
+        </tr>
+        <tr>
+          <td><strong>部門アプリ</strong></td>
+          <td>2〜3人</td>
+          <td>1〜4週間</td>
+          <td>TypeScript + HTML/CSS</td>
+          <td>SPA + GAS Web App API</td>
+          <td>ダッシュボード、申請システム、社内ポータル</td>
+        </tr>
+        <tr>
+          <td><strong>社内システム</strong></td>
+          <td>3〜5人</td>
+          <td>1〜3ヶ月</td>
+          <td>TypeScript (React + Node.js)</td>
+          <td>フロント/バック分離 + Cloud Functions</td>
+          <td>プロジェクト管理、顧客管理、レポート生成</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>技術スタック詳細</h3>
+
+    <!-- GAS -->
+    <h4>Google Apps Script (GAS)</h4>
+    <div class="explain-box">
+      Google Workspace と最も密接に統合された開発環境。スプレッドシート、ドキュメント、Gmail、カレンダー等のAPIに直接アクセスできる。デプロイ不要で、スクリプトエディタから即実行可能。
+    </div>
+    <table>
+      <thead><tr><th>項目</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td><strong>言語</strong></td><td>JavaScript (ES6ベース、一部制限あり)</td></tr>
+        <tr><td><strong>適用場面</strong></td><td>スプレッドシート操作、メール自動化、フォーム処理、定時バッチ、簡易Web API</td></tr>
+        <tr><td><strong>強み</strong></td><td>GWSとの直接統合、デプロイ不要、トリガー（時間/イベント）による自動化</td></tr>
+        <tr><td><strong>制限</strong></td><td>実行時間6分制限、日次クォータあり、モジュールシステムが独自、npm利用不可</td></tr>
+        <tr><td><strong>Claude Code連携</strong></td><td>ローカルで <code>.gs</code> ファイルを編集し <code>clasp push</code> でデプロイ</td></tr>
+      </tbody>
+    </table>
+<pre><code># clasp（GASのCLI）セットアップ
+npm install -g @google/clasp
+clasp login
+clasp create --type standalone --title "my-tool"
+clasp push   # ローカル→GASにデプロイ
+clasp pull   # GAS→ローカルに取得</code></pre>
+
+    <!-- AppSheet -->
+    <h4>AppSheet</h4>
+    <div class="explain-box">
+      Google のノーコード/ローコードプラットフォーム。スプレッドシートをデータソースとして、コードを書かずにモバイル対応の業務アプリを構築できる。
+    </div>
+    <table>
+      <thead><tr><th>項目</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td><strong>適用場面</strong></td><td>データ入力・閲覧アプリ、承認ワークフロー、在庫・資産管理、現場報告</td></tr>
+        <tr><td><strong>強み</strong></td><td>コード不要、モバイル対応自動、オフライン対応、GWSデータ直結</td></tr>
+        <tr><td><strong>制限</strong></td><td>複雑なUIカスタマイズ不可、高度なロジックに限界、パフォーマンスは行数に依存</td></tr>
+        <tr><td><strong>使い分け</strong></td><td>CRUD中心の業務アプリ → AppSheet、カスタムUI・複雑ロジック → コード開発</td></tr>
+      </tbody>
+    </table>
+
+    <!-- TypeScript + Web -->
+    <h4>TypeScript + ウェブアプリ</h4>
+    <div class="explain-box">
+      部門アプリ以上の規模では、TypeScript によるウェブアプリ開発を推奨する。型安全性、IDE補完、リファクタリング容易性により、チーム開発の品質と効率が向上する。
+    </div>
+    <table>
+      <thead><tr><th>項目</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td><strong>フロントエンド</strong></td><td>React (Vite) or 静的HTML/JS。小規模なら単一HTMLファイル、中規模ならReactコンポーネント</td></tr>
+        <tr><td><strong>バックエンド</strong></td><td>GAS Web App（小規模）、Cloud Functions（中規模）、Cloud Run（大規模）</td></tr>
+        <tr><td><strong>データベース</strong></td><td>スプレッドシート（小規模）、Firestore（中規模）、Cloud SQL（大規模）</td></tr>
+        <tr><td><strong>認証</strong></td><td>Google OAuth 2.0 で GWS アカウントと統合</td></tr>
+        <tr><td><strong>ホスティング</strong></td><td>GitHub Pages（静的）、Firebase Hosting、Cloud Run</td></tr>
+      </tbody>
+    </table>
+
+    <h3>プロジェクト特性別 選定チェックリスト</h3>
+    <table>
+      <thead><tr><th>特性</th><th>GAS</th><th>AppSheet</th><th>TS + Web</th><th>判断基準</th></tr></thead>
+      <tbody>
+        <tr><td>スプレッドシート中心</td><td><strong style="color:var(--green);">◎</strong></td><td><strong style="color:var(--green);">◎</strong></td><td>△</td><td>データがスプレッドシートに集約される場合はGAS/AppSheet</td></tr>
+        <tr><td>カスタムUI必要</td><td>△</td><td>×</td><td><strong style="color:var(--green);">◎</strong></td><td>独自デザイン・インタラクションが必要ならウェブアプリ</td></tr>
+        <tr><td>モバイル対応</td><td>△</td><td><strong style="color:var(--green);">◎</strong></td><td>○</td><td>モバイルファーストならAppSheet、レスポンシブならWeb</td></tr>
+        <tr><td>外部API連携</td><td>○</td><td>△</td><td><strong style="color:var(--green);">◎</strong></td><td>REST API呼び出しが多い場合はTS + Node.js</td></tr>
+        <tr><td>定時実行・自動化</td><td><strong style="color:var(--green);">◎</strong></td><td>○</td><td>○</td><td>時間トリガー・イベント駆動はGASが最も手軽</td></tr>
+        <tr><td>複雑なビジネスロジック</td><td>△</td><td>×</td><td><strong style="color:var(--green);">◎</strong></td><td>条件分岐・計算が多い場合は型安全なTSを推奨</td></tr>
+        <tr><td>チームでの共同開発</td><td>△</td><td>○</td><td><strong style="color:var(--green);">◎</strong></td><td>Git管理・PR運用・Claude Codeフル活用ならTS + Web</td></tr>
+        <tr><td>即日リリース</td><td><strong style="color:var(--green);">◎</strong></td><td><strong style="color:var(--green);">◎</strong></td><td>△</td><td>スピード優先の場合はGAS/AppSheetでプロトタイプ</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Claude Code との相性</h3>
+    <table>
+      <thead><tr><th>技術</th><th>Claude Code 連携度</th><th>活用方法</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>GAS</strong></td>
+          <td>○ 良い</td>
+          <td><code>clasp</code> でローカル編集 → Claude Code でコード生成・リファクタリング → <code>clasp push</code> でデプロイ。CLAUDE.md に GAS の制限事項を記載しておくと精度向上</td>
+        </tr>
+        <tr>
+          <td><strong>AppSheet</strong></td>
+          <td>△ 限定的</td>
+          <td>AppSheet 自体はノーコードのため Claude Code の直接支援は少ない。数式やAutomation のロジック設計を相談する用途</td>
+        </tr>
+        <tr>
+          <td><strong>TS + Web</strong></td>
+          <td><strong style="color:var(--green);">◎ 最適</strong></td>
+          <td>本リポジトリの全機能（Rules, Skills, Agents, Hooks）をフル活用可能。型情報による高精度なコード生成、テスト自動生成、PRレビュー</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>推奨ディレクトリ構成</h3>
+
+    <h4>GAS プロジェクト</h4>
+<pre><code>project-root/
+├── CLAUDE.md              # GAS制限事項・API仕様を記載
+├── .clasp.json            # clasp設定
+├── src/
+│   ├── main.gs            # メインスクリプト
+│   ├── triggers.gs        # トリガー定義
+│   └── utils.gs           # ユーティリティ関数
+├── appsscript.json        # GASマニフェスト
+└── docs/
+    └── README.md          # 使い方ドキュメント</code></pre>
+
+    <h4>TypeScript ウェブアプリ</h4>
+<pre><code>project-root/
+├── CLAUDE.md              # ビルドコマンド・アーキテクチャ記載
+├── .claude/
+│   ├── settings.json      # パーミッション・Hooks
+│   └── rules/             # パス別ルール
+├── src/
+│   ├── components/        # UIコンポーネント
+│   ├── services/          # API呼び出し・ビジネスロジック
+│   ├── types/             # 型定義
+│   └── utils/             # ユーティリティ
+├── docs/                  # GitHub Pages用
+├── package.json
+└── tsconfig.json</code></pre>
+
+    <h3>よくある判断ミスと対策</h3>
+    <table>
+      <thead><tr><th>判断ミス</th><th>問題</th><th>正しい選択</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>何でもGASで作る</td>
+          <td>6分制限に引っかかる、コードが肥大化、テスト困難</td>
+          <td>処理時間が長い・UIが複雑なものは TS + Web に移行</td>
+        </tr>
+        <tr>
+          <td>小さいツールにReactを使う</td>
+          <td>セットアップに時間がかかり、目的の機能開発が遅れる</td>
+          <td>個人ツールはGAS、単純なUIなら単一HTMLファイル</td>
+        </tr>
+        <tr>
+          <td>AppSheetで複雑ロジック</td>
+          <td>数式が読めなくなる、デバッグ困難、拡張性なし</td>
+          <td>ロジックが10行超ならコード開発に切り替える</td>
+        </tr>
+        <tr>
+          <td>Git管理なしで複数人開発</td>
+          <td>変更の衝突、バージョン管理不能、レビュー不可</td>
+          <td>2人以上ならGit + GitHub必須。GASも clasp 経由で管理</td>
         </tr>
       </tbody>
     </table>
