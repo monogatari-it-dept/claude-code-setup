@@ -985,12 +985,16 @@ pre:hover .copy-btn { opacity: 1; }
     <h3>1. リポジトリを作成する</h3>
     <p>GitHub CLI を使って、組織内に新しいリポジトリを作成します。</p>
 <pre><code># ホームディレクトリに移動（重要: 書き込み可能な場所で実行する）
-cd ~
+cd ~                    # macOS / Linux / Git Bash / PowerShell 共通
 
 # リポジトリ名は自由に変更してください
 gh repo create monogatari-it-dept/hello-world \
   --public \
   --description "My first Claude Code project"
+# Windows PowerShell ではバックスラッシュ(\)の代わりにバッククォート(`)で改行:
+# gh repo create monogatari-it-dept/hello-world `
+#   --public `
+#   --description "My first Claude Code project"
 
 # リポジトリをクローンして移動
 git clone https://github.com/monogatari-it-dept/hello-world.git
@@ -1005,8 +1009,12 @@ cd hello-world</code></pre>
     <div class="edit-hint">
       💡 <strong>Windows の場合:</strong> 以下のシェルコマンド（<code>cat &lt;&lt;'EOF'</code> 構文）は macOS / Linux のターミナル向けです。Windows では <strong>Git Bash</strong>（Git for Windows に付属）を使えば同じコマンドがそのまま実行できます。PowerShell の場合は <code>New-Item</code> や <code>Set-Content</code> で代替してください。なお、<strong>方法A（Claude Code に依頼）</strong> なら OS を問わず同じ操作で実行できるのでおすすめです。
     </div>
-<pre><code># ディレクトリ構造を作成（Windows Git Bash / macOS / Linux 共通）
+<pre><code># ディレクトリ構造を作成
+# macOS / Linux / Git Bash
 mkdir -p .claude/rules .claude/skills .vscode docs
+
+# Windows PowerShell の場合:
+# mkdir -Force .claude/rules, .claude/skills, .vscode, docs
 
 # CLAUDE.md を作成（プロジェクトの基本ルール）
 cat &lt;&lt;'EOF' &gt; CLAUDE.md
@@ -1079,7 +1087,7 @@ EOF</code></pre>
     </div>
 
     <p style="margin-top:20px;"><strong>方法B: 手動で作成する</strong></p>
-    <p>ターミナルで以下を実行すると、動作するサンプルページが作成されます:</p>
+    <p>ターミナル（macOS / Linux / Git Bash）で以下を実行すると、動作するサンプルページが作成されます。Windows PowerShell の場合は、VS Code でファイルを新規作成して内容を貼り付けてください。</p>
 <pre><code>cat &lt;&lt;'EOF' &gt; docs/index.html
 &lt;!DOCTYPE html&gt;
 &lt;html lang="ja"&gt;
@@ -1165,6 +1173,7 @@ git push -u origin main</code></pre>
       <strong>⚠️ 必ず Step 5 のプッシュが完了してから実行してください。</strong> main ブランチがリモートに存在しないと「The main branch must exist」エラーになります。
     </div>
     <p>GitHub CLI を使って Pages を設定します:</p>
+    <p><strong>macOS / Linux / Git Bash:</strong></p>
 <pre><code># GitHub Pages を有効化（/docs ディレクトリから配信）
 gh api repos/monogatari-it-dept/hello-world/pages \
   -X POST \
@@ -1177,6 +1186,9 @@ gh api repos/monogatari-it-dept/hello-world/pages \
   }
 }
 EOF</code></pre>
+    <p><strong>Windows PowerShell:</strong></p>
+<pre><code># GitHub Pages を有効化（/docs ディレクトリから配信）
+'{"build_type":"legacy","source":{"branch":"main","path":"/docs"}}' | gh api repos/monogatari-it-dept/hello-world/pages -X POST --input -</code></pre>
     <p>1〜2分待つと、以下の URL でページが公開されます:</p>
 <pre><code>https://monogatari-it-dept.github.io/hello-world/</code></pre>
     <div class="edit-hint">
