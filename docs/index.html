@@ -970,12 +970,15 @@ pre:hover .copy-btn { opacity: 1; }
       <tbody>
         <tr><td>Claude Code CLI</td><td><code>claude --version</code></td><td>バージョン番号が表示される</td></tr>
         <tr><td>GitHub CLI</td><td><code>gh auth status</code></td><td>Logged in と表示される</td></tr>
-        <tr><td>VS Code + 拡張機能</td><td><code>code --list-extensions | grep anthropic</code></td><td><code>anthropic.claude-code</code></td></tr>
+        <tr><td>VS Code + 拡張機能</td><td><code>code --list-extensions</code></td><td>一覧に <code>anthropic.claude-code</code> が含まれる</td></tr>
         <tr><td>Git設定</td><td><code>git config user.name && git config user.email</code></td><td>名前とメールが表示される</td></tr>
       </tbody>
     </table>
     <div class="edit-hint">
-      💡 <code>code</code> や <code>gh</code> コマンドが見つからない場合は、PATHの設定が必要です。VS Code は起動後に <code>Cmd+Shift+P</code> → 「Shell Command: Install 'code' command in PATH」を実行してください。Homebrew 未導入の場合は <code>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code> でインストール後、<code>eval "$(/opt/homebrew/bin/brew shellenv zsh)"</code> を実行してから <code>brew install gh</code> を行ってください。
+      💡 <code>code</code> コマンドが見つからない場合: VS Code を起動し <code>Cmd+Shift+P</code>（Mac）/ <code>Ctrl+Shift+P</code>（Windows）→「Shell Command: Install 'code' command in PATH」を実行してください。<br><br>
+      💡 <code>gh</code> コマンドが見つからない場合:<br>
+      <strong>Mac</strong> — Homebrew 未導入なら <code>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code> を実行後、<code>eval "$(/opt/homebrew/bin/brew shellenv zsh)"</code> → <code>brew install gh</code><br>
+      <strong>Windows</strong> — PowerShell で <code>winget install --id GitHub.cli</code> を実行してください
     </div>
 
     <!-- Step 1 -->
@@ -999,7 +1002,10 @@ cd hello-world</code></pre>
     <!-- Step 2 -->
     <h3>2. Claude Code の設定ファイルを配置する</h3>
     <p>チームテンプレートから設定ファイルをコピーするか、手動で作成します。</p>
-<pre><code># ディレクトリ構造を作成
+    <div class="edit-hint">
+      💡 <strong>Windows の場合:</strong> 以下のシェルコマンド（<code>cat &lt;&lt;'EOF'</code> 構文）は macOS / Linux のターミナル向けです。Windows では <strong>Git Bash</strong>（Git for Windows に付属）を使えば同じコマンドがそのまま実行できます。PowerShell の場合は <code>New-Item</code> や <code>Set-Content</code> で代替してください。なお、<strong>方法A（Claude Code に依頼）</strong> なら OS を問わず同じ操作で実行できるのでおすすめです。
+    </div>
+<pre><code># ディレクトリ構造を作成（Windows Git Bash / macOS / Linux 共通）
 mkdir -p .claude/rules .claude/skills .vscode docs
 
 # CLAUDE.md を作成（プロジェクトの基本ルール）
@@ -1136,6 +1142,7 @@ xdg-open docs/index.html</code></pre>
 コミットメッセージ: 「feat: Hello Worldページを作成」</code>
     </div>
     <p style="margin-top:16px;"><strong>方法B: 手動で実行する</strong></p>
+    <p>以下の git コマンドは macOS / Windows（Git Bash・PowerShell）/ Linux 共通です。</p>
 <pre><code># すべてのファイルをステージング
 git add -A
 
@@ -1294,7 +1301,12 @@ gh api repos/monogatari-it-dept/hello-world/contents/docs/index.html --jq '.name
     <!-- Step 1 -->
     <h3>1. Issue を起票する</h3>
     <p>まず、追加したい機能を GitHub Issue として登録します。これが開発の起点になります。</p>
-<pre><code>cd ~/hello-world
+<pre><code># hello-world リポジトリに移動
+# macOS / Linux / Git Bash
+cd ~/hello-world
+
+# Windows PowerShell
+# cd $HOME\hello-world
 
 # Issue を作成
 gh issue create \
@@ -2747,6 +2759,15 @@ claude --worktree feature-dashboard  # ダッシュボードの開発</code></pr
     <p>Claudeがユーザー入力を待っている時にOS通知を送信</p>
 <pre><code># macOS
 osascript -e 'display notification "Claude Code が入力を待っています" with title "Claude Code"'
+
+# Windows（PowerShell）
+# [System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null
+# $notify = New-Object System.Windows.Forms.NotifyIcon
+# $notify.Icon = [System.Drawing.SystemIcons]::Information
+# $notify.BalloonTipTitle = 'Claude Code'
+# $notify.BalloonTipText = 'Claude Code が入力を待っています'
+# $notify.Visible = $true; $notify.ShowBalloonTip(5000)
+
 # Linux
 notify-send 'Claude Code' 'Claude Code が入力を待っています'</code></pre>
 
